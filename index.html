@@ -1452,8 +1452,7 @@ function updateTimer() {
   const min = Math.floor(elapsed / 60000);
   const sec = Math.floor((elapsed % 60000) / 1000);
   td.textContent = String(min).padStart(2, "0") + ":" + String(sec).padStart(2, "0");
-  td.classList.toggle("warn", elapsed >= 30 * 60 * 1000 && elapsed < 60 * 60 * 1000);
-  td.classList.toggle("danger", remaining < 60 * 1000);
+  td.classList.toggle("warn", elapsed >= 30 * 60 * 1000);
 }
 
 // ========================================
