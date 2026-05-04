@@ -1207,8 +1207,8 @@ button:focus-visible, input:focus-visible, label:focus-visible {
     </header>
 
     <div class="section">
-      <div class="section-label"><span>Quizzes</span><span class="hint">clica pra incluir / excluir</span></div>
-      <div class="tag-row" id="quizFilter"></div>
+      <div class="section-label"><span>Aulas</span><span class="hint">clica pra incluir / excluir</span></div>
+      <div class="tag-row" id="aulaFilter"></div>
     </div>
 
     <div class="section">
@@ -2883,26 +2883,36 @@ function fmtTime(ms) {
 // ========================================
 // SETUP
 // ========================================
-const allQuizzes = uniq(QUESTIONS.map(q => q.quiz)).sort((a,b) => a-b);
+// Mapping aula -> tópicos cobertos (baseado nos resumos)
+const AULAS = {
+  7:  ["Tipos", "Operadores", "Comparações"],
+  8:  ["Conversão", "Tipos", "Operadores", "Strings", "Condicionais"],
+  9:  ["Tipos", "Operadores", "Strings", "Listas"],
+  10: ["Tipos", "Operadores", "Strings", "Listas", "Loops"],
+  11: ["Condicionais", "Comparações"],
+  12: ["Loops", "Condicionais"],
+  13: ["Listas", "Loops", "Condicionais", "Strings"]
+};
+const allAulas = Object.keys(AULAS).map(Number).sort((a,b) => a-b);
 const allTopics = uniq(QUESTIONS.map(q => q.topic)).sort();
-const selectedQuizzes = new Set(allQuizzes);
+const selectedAulas = new Set(allAulas);
 const selectedTopics = new Set();
 
 function renderFilters() {
-  const qf = document.getElementById("quizFilter");
-  qf.innerHTML = "";
-  allQuizzes.forEach(q => {
+  const af = document.getElementById("aulaFilter");
+  af.innerHTML = "";
+  allAulas.forEach(a => {
     const t = document.createElement("button");
     t.type = "button";
-    t.className = "tag" + (selectedQuizzes.has(q) ? " active" : "");
-    t.textContent = "Q" + q;
+    t.className = "tag" + (selectedAulas.has(a) ? " active" : "");
+    t.textContent = "A" + a;
     t.onclick = () => {
-      if (selectedQuizzes.has(q)) selectedQuizzes.delete(q);
-      else selectedQuizzes.add(q);
+      if (selectedAulas.has(a)) selectedAulas.delete(a);
+      else selectedAulas.add(a);
       renderFilters();
       updatePoolSize();
     };
-    qf.appendChild(t);
+    af.appendChild(t);
   });
 
   const tf = document.getElementById("topicFilter");
@@ -2923,8 +2933,12 @@ function renderFilters() {
 }
 
 function getPool() {
+  // Tópicos cobertos pelas aulas selecionadas (união)
+  const aulaTopics = new Set();
+  selectedAulas.forEach(a => (AULAS[a] || []).forEach(t => aulaTopics.add(t)));
+
   return QUESTIONS.filter(q =>
-    selectedQuizzes.has(q.quiz) &&
+    aulaTopics.has(q.topic) &&
     (selectedTopics.size === 0 || selectedTopics.has(q.topic))
   );
 }
