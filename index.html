@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Python FGV - Treino</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f1419;
+    --bg-elev: #1a2028;
+    --bg-elev2: #232b36;
+    --border: #2d3748;
+    --fg: #e6edf3;
+    --fg-dim: #8b949e;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --red: #f85149;
+    --yellow: #d29922;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    line-height: 1.55;
+    padding: 24px 16px;
+    min-height: 100vh;
+  }
+  .container {
+    max-width: 820px;
+    margin: 0 auto;
+  }
+  h1 { font-size: 22px; margin-bottom: 4px; }
+  h2 { font-size: 18px; margin: 20px 0 12px; }
+  h3 { font-size: 15px; color: var(--fg-dim); margin-bottom: 8px; font-weight: 500; }
+  .subtitle { color: var(--fg-dim); font-size: 13px; margin-bottom: 24px; }
+  .card {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .row > * { flex: 0 0 auto; }
+  label { font-size: 13px; color: var(--fg-dim); margin-right: 8px; }
+  select, input[type="number"], input[type="checkbox"] {
+    background: var(--bg-elev2);
+    color: var(--fg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 14px;
+    font-family: inherit;
+  }
+  input[type="checkbox"] { padding: 0; width: 16px; height: 16px; cursor: pointer; }
+  button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 9px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  button:hover { filter: brightness(1.1); }
+  button.secondary {
+    background: var(--bg-elev2);
+    color: var(--fg);
+    border: 1px solid var(--border);
+  }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .topic-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .tag {
+    background: var(--bg-elev2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 3px 9px;
+    font-size: 11px;
+    color: var(--fg-dim);
+    cursor: pointer;
+    user-select: none;
+  }
+  .tag.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .progress {
+    height: 4px;
+    background: var(--bg-elev2);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.3s;
+  }
+  .meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--fg-dim);
+    margin-bottom: 12px;
+  }
+  .timer { font-family: var(--mono); }
+  .timer.warn { color: var(--yellow); }
+  .timer.danger { color: var(--red); }
+  .question-text {
+    font-size: 15px;
+    margin-bottom: 12px;
+    white-space: pre-wrap;
+  }
+  pre {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    font-family: var(--mono);
+    font-size: 13px;
+    overflow-x: auto;
+    margin: 10px 0;
+    white-space: pre;
+  }
+  code {
+    font-family: var(--mono);
+    background: var(--bg);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 0.92em;
+  }
+  pre code { background: transparent; padding: 0; }
+  .options { display: flex; flex-direction: column; gap: 8px; margin: 14px 0 8px; }
+  .option {
+    background: var(--bg-elev2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 11px 14px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    font-size: 14px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .option:hover { background: #2a3340; }
+  .option.selected { border-color: var(--accent); }
+  .option.correct { background: rgba(63, 185, 80, 0.15); border-color: var(--green); }
+  .option.wrong { background: rgba(248, 81, 73, 0.15); border-color: var(--red); }
+  .option-letter {
+    font-family: var(--mono);
+    color: var(--fg-dim);
+    font-weight: 600;
+    flex: 0 0 auto;
+  }
+  .option-text { flex: 1; word-break: break-word; }
+  .feedback {
+    background: var(--bg-elev2);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    padding: 12px 14px;
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--fg-dim);
+  }
+  .feedback.correct { border-left-color: var(--green); }
+  .feedback.wrong { border-left-color: var(--red); }
+  .feedback strong { color: var(--fg); }
+  .nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 16px; }
+  .nav button { flex: 1; }
+  .summary {
+    text-align: center;
+    padding: 32px 20px;
+  }
+  .score-big {
+    font-size: 56px;
+    font-weight: 700;
+    color: var(--accent);
+    margin: 16px 0 6px;
+    font-family: var(--mono);
+  }
+  .breakdown {
+    text-align: left;
+    margin-top: 24px;
+  }
+  .breakdown-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+  .breakdown-row:last-child { border-bottom: none; }
+  .breakdown-pct { font-family: var(--mono); }
+  .review-item {
+    margin-top: 12px;
+    padding: 12px 14px;
+    background: var(--bg-elev2);
+    border-radius: 6px;
+    border-left: 3px solid var(--red);
+  }
+  .review-item .q-num { font-size: 12px; color: var(--fg-dim); margin-bottom: 4px; }
+  .review-item .q-text { font-size: 13px; margin-bottom: 6px; }
+  .review-item .answers { font-size: 12px; color: var(--fg-dim); }
+  .review-item pre { font-size: 12px; padding: 8px 10px; }
+  .hidden { display: none !important; }
+  .legend { font-size: 12px; color: var(--fg-dim); margin-top: 6px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- SETUP SCREEN -->
+  <div id="setup" class="card">
+    <h1>Quiz Python FGV</h1>
+    <p class="subtitle">Treino pra mini-prova de Hitoshi (Aulas 7-14)</p>
+
+    <h3>Modo</h3>
+    <div class="row">
+      <label><input type="radio" name="mode" value="treino" checked> Treino (gabarito imediato)</label>
+      <label><input type="radio" name="mode" value="simulado"> Simulado (timer + score só no fim)</label>
+    </div>
+
+    <h3 style="margin-top:20px">Quizzes incluídos</h3>
+    <div class="topic-tags" id="quizFilter"></div>
+    <div class="legend">Clique pra incluir/excluir. Default: todos.</div>
+
+    <h3 style="margin-top:20px">Tópicos (opcional)</h3>
+    <div class="topic-tags" id="topicFilter"></div>
+    <div class="legend">Clique pra filtrar só esse tópico. Default: todos.</div>
+
+    <h3 style="margin-top:20px">Quantidade</h3>
+    <div class="row">
+      <label>Nº de questões: </label>
+      <input type="number" id="numQ" value="20" min="1" max="78" step="1">
+      <span class="legend" id="poolSize"></span>
+    </div>
+
+    <div class="row" style="margin-top:12px">
+      <label><input type="checkbox" id="shuffleQ" checked> Embaralhar ordem das questões</label>
+    </div>
+    <div class="row" style="margin-top:6px">
+      <label><input type="checkbox" id="shuffleA" checked> Embaralhar alternativas</label>
+    </div>
+
+    <div class="row" id="timerRow" style="margin-top:12px; display:none">
+      <label>Timer (min): </label>
+      <input type="number" id="timerMin" value="30" min="1" max="180" step="1">
+    </div>
+
+    <div style="margin-top:24px">
+      <button onclick="startQuiz()">Começar</button>
+    </div>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div id="quiz" class="hidden">
+    <div class="meta">
+      <span id="qCounter"></span>
+      <span class="timer" id="timerDisplay"></span>
+    </div>
+    <div class="progress"><div class="progress-fill" id="progressFill"></div></div>
+
+    <div class="card">
+      <div id="questionContainer"></div>
+      <div class="options" id="optionsContainer"></div>
+      <div id="feedbackContainer"></div>
+    </div>
+
+    <div class="nav">
+      <button class="secondary" onclick="prevQuestion()" id="prevBtn">← Anterior</button>
+      <button onclick="nextQuestion()" id="nextBtn">Próxima →</button>
+    </div>
+    <div class="row" style="margin-top:12px; justify-content:flex-end">
+      <button class="secondary" onclick="finishQuiz()" style="font-size:12px; padding:6px 12px">Finalizar agora</button>
+    </div>
+  </div>
+
+  <!-- RESULTS SCREEN -->
+  <div id="results" class="hidden">
+    <div class="card summary">
+      <h2 style="margin:0">Resultado</h2>
+      <div class="score-big" id="scoreBig"></div>
+      <div id="scoreDetail" class="subtitle"></div>
+    </div>
+
+    <div class="card">
+      <h2>Por tópico</h2>
+      <div id="breakdown" class="breakdown"></div>
+    </div>
+
+    <div class="card">
+      <h2>Revisar erros</h2>
+      <div id="reviewList"></div>
+      <div id="noErrors" class="hidden subtitle" style="text-align:center; padding:20px">Nenhum erro. Mata-leão.</div>
+    </div>
+
+    <div class="row" style="justify-content:center; margin-top:16px">
+      <button onclick="restart()">Refazer / Novo quiz</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// QUESTION POOL
+// ============================================================
+const QUESTIONS = [
+  // ============ QUIZ 1 ============
+  {id:"1.1", quiz:1, topic:"tipos", q:"No Python, quando usamos input(\"Digite um número: \"), o valor recebido do usuário vem inicialmente como qual tipo de dado?", opts:["float","bool","int","string"], correct:3, exp:"input() SEMPRE retorna str (\"string\"), independente do que o user digita. Por isso precisa converter com int() ou float() pra fazer conta."},
+  {id:"1.2", quiz:1, topic:"conversao", q:"Considere o código:", code:"n = input(\"Digite um número: \")\nn = int(n)", question:"Qual é a principal finalidade da linha n = int(n)?", opts:["Fazer o Python imprimir o valor de n","Converter o texto digitado em número inteiro, para permitir operações numéricas","Transformar n em uma variável booleana","Arredondar automaticamente n para duas casas decimais"], correct:1, exp:"int(n) converte a string que veio do input em inteiro, pra que somar/subtrair/comparar funcione como número."},
+  {id:"1.3", quiz:1, topic:"operadores", q:"No código print(x**2), o operador ** é usado para:", opts:["Fazer divisão inteira","Comparar dois valores","Elevar um valor a uma potência","Concatenar textos"], correct:2, exp:"** é potenciação. x**2 = x ao quadrado. Divisão inteira é //, comparação é == > <, concatenação é +."},
+  {id:"1.4", quiz:1, topic:"tipos", q:"Qual alternativa descreve corretamente a diferença entre 123 e \"123\" em Python?", opts:["Os dois são números decimais","123 é texto; \"123\" é inteiro","Os dois são inteiros","123 é um número inteiro; \"123\" é um texto"], correct:3, exp:"Sem aspas = int. Com aspas = str. type(123) é int, type(\"123\") é str."},
+  {id:"1.5", quiz:1, topic:"conversao", q:"Considere o código abaixo e suponha que o usuário digitou 7.", code:"n = input(\"digite um numero inteiro:\")\nprint(\"voce digitou n=\", n)\nn = int(n)\nn = n + 1\nprint(\"n é igual a\", n)", question:"Qual será a última linha exibida?", opts:["n é igual a 71","n é igual a 7","n é igual a 8","n é igual a 6"], correct:2, exp:"Após int(\"7\") = 7. Depois 7+1 = 8."},
+  {id:"1.6", quiz:1, topic:"operadores", q:"Você quer que o gasto médio em 4 semanas seja de R$ 120 por semana. Você já gastou nas 3 primeiras semanas: s1, s2 e s3. Qual expressão calcula corretamente o gasto máximo permitido na 4ª semana (s4) para que a média das 4 semanas seja 120?", opts:["s4 = 120 - (s1 + s2 + s3)/4","s4 = (s1 + s2 + s3) - 120*4","s4 = 120*4 - (s1 + s2 + s3)","s4 = (120 - (s1 + s2 + s3)) / 4"], correct:2, exp:"Média 120 em 4 semanas = total 480. s4 = 480 - (s1+s2+s3) = 120*4 - (s1+s2+s3)."},
+  {id:"1.7", quiz:1, topic:"operadores", q:"Quatro amigos fizeram uma compra de mercado de R$ 240,00 e a entrega cobra 12% de taxa. A Ana já pagou adiantado R$ 60,00. O restante (já com a taxa) deve ser dividido igualmente entre os outros 3 amigos. Qual será o valor que cada um dos outros 3 amigos deve pagar?", opts:["R$ 62,40","R$ 76,80","R$ 72,00","R$ 69,60"], correct:3, exp:"240*1.12 = 268.80 (com taxa). 268.80 - 60 = 208.80 (resto). 208.80/3 = 69.60."},
+  {id:"1.8", quiz:1, topic:"conversao", q:"Qual código lê um número inteiro digitado pelo usuário e imprime corretamente o seu triplo?", opts:["print(input('digite um numero:')*3.0)","n = int('digite um numero:') print(n*3)","n = input('digite um numero:') n = int(n) print(n*3)","n = input('digite um numero:') print(n*3)"], correct:2, exp:"Tem que pegar input, converter pra int, depois multiplicar. A opção 1 multiplica string por float (erro). A 2 tenta int do prompt. A 4 multiplica string por int (repete a string)."},
+
+  // ============ QUIZ 2 ============
+  {id:"2.1", quiz:2, topic:"tipos", q:"Qual expressão abaixo resulta em um valor do tipo bool?", opts:["'10' + '5'","11 > 5","10 + 5","float(3)"], correct:1, exp:"Comparação > retorna bool (True/False). '10'+'5' é str ('105'). 10+5 é int. float(3) é float."},
+  {id:"2.2", quiz:2, topic:"operadores", q:"Qual das expressões abaixo executa sem erro e produz um resultado do tipo str?", opts:["len(42)","'Alice' * 5.0","'Alice' + 42","'Alice' * 5"], correct:3, exp:"str * int repete a string. 'Alice'*5 = 'AliceAliceAliceAliceAlice'. len de int dá erro. str*float dá erro. str+int dá erro."},
+  {id:"2.3", quiz:2, topic:"tipos", q:"Considere o código:", code:"a = input('Digite o primeiro número: ')\nb = input('Digite o segundo número: ')\nprint(a + b)", question:"Se o usuário digitar 2 e depois 3, por que a saída será 23 em vez de 5?", opts:["Porque input() retorna str e o + entre strings faz concatenação.","Porque print() transforma tudo em texto antes da soma.","Porque Python converte automaticamente 2 e 3 para bool.","Porque o operador + soma apenas números negativos."], correct:0, exp:"input() devolve str sempre. '2'+'3' concatena = '23'. Pra somar como número, precisa int() antes."},
+  {id:"2.4", quiz:2, topic:"tipos", q:"Em Python, quais são os tipos de 12, 12.0, '12' e False, nessa ordem?", opts:["int, float, bool, str","float, int, str, bool","int, int, str, bool","int, float, str, bool"], correct:3, exp:"12 é int, 12.0 é float (tem ponto), '12' é str (aspas), False é bool."},
+  {id:"2.5", quiz:2, topic:"tipos", q:"Após executar o código abaixo, qual é o tipo da variável nome?", code:"nome = input('Digite seu nome: ')", opts:["float","bool","str","int"], correct:2, exp:"input() sempre retorna str."},
+  {id:"2.6", quiz:2, topic:"conversao", q:"Você quer calcular a média de duas notas que podem ter casas decimais. Qual alternativa está correta?", opts:["n1 = float(input('Nota 1: '))   n2 = float(input('Nota 2: '))   media = (n1 + n2) / 2","n1 = bool(input('Nota 1: '))   n2 = bool(input('Nota 2: '))   media = n1 + n2","n1 = input('Nota 1: ')   n2 = input('Nota 2: ')   media = n1 + n2","n1 = int(input('Nota 1: '))   n2 = int(input('Nota 2: '))   media = n1 + n2 / 2 / 2"], correct:0, exp:"Notas com decimal → float(). Média = soma/2, com parênteses pra somar antes de dividir. A última opção sem parênteses faz n1 + n2/2/2 = n1 + n2/4 (errado)."},
+  {id:"2.7", quiz:2, topic:"conversao", q:"Deseja-se calcular o preço total de uma compra. Qual trecho está correto?", code:"preco = input('Preço unitário: ')\nqtd = input('Quantidade: ')\n# completar", opts:["total = str(preco) + str(qtd)   print(total)","total = bool(preco) * bool(qtd)   print(total)","total = preco * qtd   print(total)","total = float(preco) * int(qtd)   print(total)"], correct:3, exp:"Preço pode ter decimal → float. Quantidade é inteira → int. Multiplica os dois pra ter o total."},
+  {id:"2.8", quiz:2, topic:"conversao", q:"Considere o programa abaixo:", code:"a = int(input('Digite A: '))\nb = int(input('Digite B: '))\nprint(a + b)", question:"Se o usuário digitar 2 e depois 3, qual será a saída?", opts:["5","Ocorre erro de tipo","'5'","23"], correct:0, exp:"int() converte. 2+3 = 5 (int)."},
+  {id:"2.9", quiz:2, topic:"conversao", q:"Qual alternativa completa corretamente o programa para calcular a área de um quadrado a partir do lado digitado pelo usuário?", code:"lado = input('Digite o lado do quadrado: ')\n# inserir uma linha de código\nprint('A área do quadrado é', area)", opts:["area = lado ^ 2","lado = str(lado)   area = lado + lado","lado = int(lado)   area = lado ** 2","area = int('lado') ** 2"], correct:2, exp:"^ em Python é XOR, não potência. ** é potência. int('lado') tenta converter a literal 'lado' (erro)."},
+  {id:"2.10", quiz:2, topic:"strings", q:"Qual será a saída do código abaixo?", code:"nota = 10\nprint('Nota final: ' + str(nota))", opts:["Ocorre erro, porque não se pode usar + com strings.","Nota final: 10","10","Nota final:"], correct:1, exp:"str(10) = '10'. 'Nota final: ' + '10' = 'Nota final: 10'."},
+
+  // ============ QUIZ 3 ============
+  {id:"3.1", quiz:3, topic:"listas", q:"Considere a lista m = ['Star Wars', 'LOTR', 'Jurassic Park']. O que retorna a expressão m[0:2]?", opts:["Apenas 'Star Wars'","['Star Wars', 'LOTR', 'Jurassic Park']","['Star Wars', 'LOTR']","['LOTR', 'Jurassic Park']"], correct:2, exp:"Slicing [a:b] inclui index a, exclui index b. m[0:2] pega index 0 e 1."},
+  {id:"3.2", quiz:3, topic:"listas", q:"Qual alternativa descreve corretamente a diferença entre append() e insert() em listas?", opts:["append() substitui um elemento existente e insert() ordena a lista","append() só funciona com números e insert() só funciona com strings","append() adiciona no final da lista e insert() adiciona em uma posição específica","append() adiciona no início e insert() adiciona no final"], correct:2, exp:"append(x) põe x no fim. insert(i, x) põe x na posição i."},
+  {id:"3.3", quiz:3, topic:"strings", q:"O método split() aplicado a uma string, como em nome_completo.split(), serve para:", opts:["Separar a string em partes e retornar uma lista","Ordenar alfabeticamente os caracteres da string","Converter todos os caracteres da string em maiúsculas","Juntar vários elementos de uma lista em uma única string"], correct:0, exp:"split() quebra a string nos espaços (ou no separador passado) e devolve lista. Junção é join()."},
+  {id:"3.4", quiz:3, topic:"listas", q:"Em Python, o que significa usar índice -1 em uma lista, como em lista[-1]?", opts:["Remover o último elemento da lista","Acessar o último elemento da lista","Contar quantos elementos existem na lista","Acessar o primeiro elemento da lista"], correct:1, exp:"Indices negativos contam de trás pra frente. -1 é o último, -2 o penúltimo, etc."},
+  {id:"3.5", quiz:3, topic:"listas", q:"Sobre sort() e sorted() em Python, qual alternativa está correta?", opts:["sort() e sorted() sempre fazem exatamente a mesma coisa e retornam o mesmo tipo","sorted() só funciona com listas de strings","sort() modifica a própria lista, enquanto sorted() devolve uma nova lista ordenada","sort() cria uma nova lista e mantém a original inalterada"], correct:2, exp:"sort() é método in-place: l.sort() altera l e retorna None. sorted(l) devolve lista nova, l fica intacta."},
+  {id:"3.6", quiz:3, topic:"listas", q:"Considere o código:", code:"l = [1, 2, 3, 4, 5]\nprint(l[2])", question:"Qual será a saída?", opts:["3","Ocorre erro, pois a lista começa no índice 1","4","2"], correct:0, exp:"Index começa em 0. l[0]=1, l[1]=2, l[2]=3."},
+  {id:"3.7", quiz:3, topic:"listas", q:"Considere o código:", code:"m = ['Star Wars', 'LOTR', 'Jurassic Park']\nm.append('Terminator')\nprint(len(m))", question:"Qual será a saída?", opts:["5","4","3","Ocorre erro, pois append() não altera a lista"], correct:1, exp:"append modifica in-place. Lista original tinha 3, agora tem 4."},
+  {id:"3.8", quiz:3, topic:"listas", q:"Considere o código:", code:"m = ['Avatar', 'Star Wars', 'Jurassic Park']\nm.remove('Star Wars')\nm.insert(1, 'Batman')\nprint(m)", question:"Qual será a saída?", opts:["['Batman', 'Avatar', 'Jurassic Park']","['Avatar', 'Star Wars', 'Batman', 'Jurassic Park']","['Avatar', 'Batman', 'Jurassic Park']","['Avatar', 'Jurassic Park', 'Batman']"], correct:2, exp:"remove tira 'Star Wars' → ['Avatar','Jurassic Park']. insert(1,'Batman') põe 'Batman' na posição 1 → ['Avatar','Batman','Jurassic Park']."},
+  {id:"3.9", quiz:3, topic:"strings", q:"Considere o código:", code:"nome_completo = 'Pedro de Alcantara'\niniciais = ''\nfor nome in nome_completo.split():\n    if nome != 'de':\n        iniciais = iniciais + nome[0]\nprint(iniciais)", question:"Qual será a saída?", opts:["PDA","PedroA","PdA","PA"], correct:3, exp:"split() → ['Pedro','de','Alcantara']. Filtra 'de'. Pega primeira letra: 'P' + 'A' = 'PA'."},
+  {id:"3.10", quiz:3, topic:"loops", q:"Considere o código:", code:"m = ['Sol', 'Lua', 'Mar']\nsoma = 0\nfor palavra in m:\n    soma = soma + len(palavra)\nprint(soma)", question:"Qual será a saída?", opts:["3","9","6","12"], correct:1, exp:"len('Sol')=3, len('Lua')=3, len('Mar')=3. Total 9."},
+
+  // ============ QUIZ 4 ============
+  {id:"4.1", quiz:4, topic:"condicionais", q:"Em Python, qual expressão é equivalente a 5 <= nota < 6?", opts:["5 <= nota and 6","nota >= 5 or nota < 6","nota > 5 and nota <= 6","nota >= 5 and nota < 6"], correct:3, exp:"Encadeamento 5 <= nota < 6 = (nota >= 5) AND (nota < 6). Tem que ser AND e os limites são inclusivo no 5, exclusivo no 6."},
+  {id:"4.2", quiz:4, topic:"loops", q:"Observe o código abaixo:", code:"produtos = [\"arroz\", \"feijao\", \"macarrao\"]\nestoque = [3, 8, 2]\nestoque_minimo = 4\nfor i in range(len(produtos)):\n    if estoque[i] < estoque_minimo:\n        print(produtos[i])", question:"O que será impresso?", opts:["Apenas arroz","Apenas macarrao","arroz e macarrao, cada um em uma linha","feijao e macarrao, cada um em uma linha"], correct:2, exp:"estoque[0]=3<4 → arroz. estoque[1]=8 não. estoque[2]=2<4 → macarrao."},
+  {id:"4.3", quiz:4, topic:"condicionais", q:"Considere o código abaixo:", code:"compras = [120, 80, 30]\ntotal = sum(compras)\nif total >= 200:\n    print(\"desconto alto\")\nelif total >= 100:\n    print(\"desconto baixo\")\nelse:\n    print(\"sem desconto\")", question:"Qual será a saída?", opts:["sem desconto","desconto alto","desconto baixo","Nada será impresso"], correct:1, exp:"sum = 120+80+30 = 230. 230 >= 200 → desconto alto. Cuidado: a primeira condição que bate é a executada."},
+  {id:"4.4", quiz:4, topic:"condicionais", q:"Qual será a saída do código abaixo, se o usuário digitar 5.7 para a primeira pergunta e 6.2 para a segunda?", code:"nota_final = float(input(...))\nmedia_semestral = float(input(...))\nif nota_final >= 6:\n    status = \"aprovado\"\nelif (5 <= nota_final < 6) and media_semestral >= 6:\n    status = \"reaval\"\nelse:\n    status = \"reprovado\"\nprint(status)", opts:["aprovado","reprovado","O código gera erro de sintaxe","reaval"], correct:3, exp:"5.7 não é >= 6 (skip if). 5 <= 5.7 < 6 ✓ AND 6.2 >= 6 ✓ → reaval."},
+  {id:"4.5", quiz:4, topic:"loops", q:"Considere numeros = [1, 2, 3, 4]. Qual trecho produz exatamente a lista [2, 4] ao final da execução?", opts:["pares = []   for n in numeros: if n % 2 != 0: pares.append(n)","pares = []   for n in numeros: if n % 2 == 0: pares.append(n)","pares = []   for n in numeros: pares.append(n) if n % 2 == 0: pass","pares = []   for n in numeros: if n % 2 == 0: pares = pares.append(n)"], correct:1, exp:"n % 2 == 0 filtra pares. .append() retorna None, então pares = pares.append(n) destrói a lista. != 0 pegaria ímpares."},
+  {id:"4.6", quiz:4, topic:"condicionais", q:"Se cond1 for verdadeira em if/elif/else, o que acontece?", opts:["O Python executa o bloco do if e depois testa o elif normalmente","Somente o bloco do if é executado; os demais blocos são ignorados","O bloco do else sempre executa ao final para encerrar a estrutura","Os três blocos executam, mas em ordem diferente"], correct:1, exp:"if/elif/else é mutuamente exclusivo: só o primeiro bloco verdadeiro roda."},
+  {id:"4.7", quiz:4, topic:"condicionais", q:"Qual alternativa descreve corretamente uma diferença e uma similaridade entre if/else e if/elif/else?", opts:["Ambos escolhem blocos com base em condições; if/else trata dois caminhos, enquanto if/elif/else permite três ou mais possibilidades mutuamente exclusivas","Ambos só podem ser usados com números inteiros, e elif é obrigatório em qualquer condicional","if/else executa apenas um bloco, mas if/elif/else executa todos os blocos cujas condições forem verdadeiras","Não há nenhuma diferença prática entre eles; a escolha é apenas de estilo"], correct:0, exp:"if/else: 2 caminhos. if/elif/else: 3+. Em ambos, só um bloco roda."},
+  {id:"4.8", quiz:4, topic:"listas", q:"Considere o código:", code:"nomes = [\"Ana\", \"Bruno\"]\nif len(nomes) > 1:\n    nomes.append(\"Carla\")\nelse:\n    nomes.append(\"Diego\")", question:"Qual será o conteúdo final da lista nomes?", opts:["[\"Ana\", \"Bruno\", \"Diego\"]","[\"Ana\", \"Bruno\", \"Carla\"]","[\"Carla\", \"Ana\", \"Bruno\"]","[\"Ana\"]"], correct:1, exp:"len(nomes)=2 > 1 → entra no if → append('Carla'). append vai pro fim."},
+  {id:"4.9", quiz:4, topic:"condicionais", q:"Em Python, qual é o papel da indentação logo após if, elif e else?", opts:["Indica quais linhas são comentários associados ao bloco","Define a ordem alfabética em que os comandos serão executados","Delimita quais comandos pertencem ao bloco daquela cláusula","Serve apenas para deixar o código mais bonito, sem efeito na execução"], correct:2, exp:"Python usa indentação pra delimitar bloco (não chaves nem keywords). Indentação errada quebra a lógica."},
+  {id:"4.10", quiz:4, topic:"condicionais", q:"Qual alternativa completa corretamente um programa para classificar o IMC nas faixas: Magreza (< 18.5), Normal (de 18.5 até abaixo de 25), Sobrepeso (de 25 até abaixo de 30) e Obesidade (30 ou mais)?", opts:["if imc < 18.5: Magreza   elif imc < 25: Normal   elif imc < 30: Sobrepeso   else: Obesidade","if imc <= 18.5: Magreza   elif imc <= 25: Normal   elif imc <= 30: Sobrepeso   else: Obesidade","if imc < 30: Sobrepeso   elif imc < 25: Normal   elif imc < 18.5: Magreza   else: Obesidade","if imc < 18.5: Magreza   if imc < 25: Normal   if imc < 30: Sobrepeso   else: Obesidade"], correct:0, exp:"Ordem: do menor pro maior. Faixas exclusivas usam <, não <=. Vários if soltos (sem elif) sobrescrevem o resultado."},
+
+  // ============ QUIZ 5 ============
+  {id:"5.1", quiz:5, topic:"loops", q:"Considere o código:", code:"nomes = ['Ana', 'Bia']\ncontador = 0\nfor nome in nomes:\n    for letra in nome:\n        if letra.lower() == 'a':\n            contador = contador + 1\nprint(contador)", question:"Qual valor será impresso?", opts:["2","0","1","3"], correct:3, exp:"'Ana' tem 'A' e 'a' (2). 'Bia' tem 'a' (1). Total 3. Atenção: lower() iguala 'A' a 'a'."},
+  {id:"5.2", quiz:5, topic:"condicionais", q:"Complete o código para classificar notas em conceitos: nota >= 7: 'A'; nota >= 5 e < 7: 'B'; caso contrário: 'C'.", code:"notas = [8, 6, 4, 7]\nconceitos = []\n# resultado esperado: ['A','B','C','A']", opts:["for n in notas: if n > 7: A   elif n > 5: B   else: C","for n in notas: if n >= 7: A   if n >= 5: B   else: C","for n in notas: if n >= 7: A   elif n >= 5: B   else: C","for n in notas: if n >= 7: A   elif n < 5: B   else: C"], correct:2, exp:"Tem que usar >= 7 (não > 7, senão 7 vira B). Tem que usar elif (não dois ifs separados, que sobrescrevem). A 4 com 'elif n < 5' inverte a lógica."},
+  {id:"5.3", quiz:5, topic:"loops", q:"Dada a lista lista = [1, 'a', 2, -3], no loop for elemento in lista, o que a variável elemento representa?", opts:["A lista inteira a cada iteração","A soma acumulada dos itens numéricos da lista","Cada item da lista, um por vez (1, depois 'a', depois 2, depois -3)","O índice de cada item (0, 1, 2, 3)"], correct:2, exp:"for x in lista itera os ELEMENTOS, não os índices. Pra índice usa range(len(lista)) ou enumerate()."},
+  {id:"5.4", quiz:5, topic:"loops", q:"Considere o código:", code:"for x in range(2, 6):\n    print(x)", question:"Qual será a saída?", opts:["3 4 5 6","2 3 4 5 6","2 4 6","2 3 4 5"], correct:3, exp:"range(a,b) inclui a, exclui b. range(2,6) → 2,3,4,5."},
+  {id:"5.5", quiz:5, topic:"loops", q:"Você tem nums = [3, 4, 7, 10, 12] e quer pares na ordem.", opts:["pares = []   for i in range(len(nums)): if i % 2 == 0: pares.append(i)","pares = nums   for n in nums: if n % 2 == 0: pares = n","pares = []   for n in nums: if n % 2 == 1: pares.append(n)","pares = []   for n in nums: if n % 2 == 0: pares.append(n)"], correct:3, exp:"Itera elemento (n), checa par com %2==0, append(n). Opção 1 itera ÍNDICE i (não o número). Opção 3 pega ímpares."},
+  {id:"5.6", quiz:5, topic:"loops", q:"Você quer ler números até o user digitar 0. Somar apenas positivos. Qual está correto?", opts:["soma = 0   n = int(input())   while n != 0: if n > 0: soma += n   n = int(input())   print(soma)","soma = 0   n = int(input())   while n != 0: if n > 0: soma += n   elif n < 0: soma += n   n = int(input())   print(soma)","soma = 0   while True: n = int(input()) if n < 0: soma += n elif n == 0: break print(soma)","soma = 0   while n != 0: n = int(input()) if n > 0: soma += n print(soma)"], correct:0, exp:"Padrão clássico: lê antes do while, atualiza no fim do loop. Opção 2 também soma negativos. Opção 3 soma negativos. Opção 4 usa n antes de definir."},
+  {id:"5.7", quiz:5, topic:"loops", q:"Por que é comum inicializar myPass antes do while?", code:"myPass = ''\nwhile myPass != 'password':\n    myPass = input('Digite a senha: ')", opts:["Porque input() só funciona se myPass já tiver algum valor","Porque strings vazias não podem ser comparadas com outras strings","Porque o while precisa comparar myPass na primeira verificação; sem inicializar, myPass não existe ainda","Porque o while em Python sempre exige uma variável iniciada com número"], correct:2, exp:"while testa myPass ANTES de entrar no corpo. Sem definir antes, NameError."},
+  {id:"5.8", quiz:5, topic:"strings", q:"Você tem emails e quer aliases (texto antes do @) só dos @gmail.com.", code:"emails = ['ana@gmail.com', 'bia@hotmail.com', 'carlos@gmail.com']\naliases = []\n# resultado esperado: ['ana', 'carlos']", opts:["for e in emails: pos = e.find('@') if e == '@gmail.com': aliases.append(e[:pos])","for e in emails: if e.endswith('@gmail.com'): aliases.append(e[pos:])","for e in emails: if e.endswith('@gmail.com'): pos = e.find('@') aliases.append(e[:pos])","for e in emails: if '@gmail.com' in e: aliases.append(e.split('@gmail.com')[0])"], correct:3, exp:"split('@gmail.com')[0] pega o trecho antes do separador. Opção 1: e == '@gmail.com' nunca é True. Opção 2: pos não está definido. Opção 3 também funcionaria (find + slice), mas a 4 é mais idiomática."},
+  {id:"5.9", quiz:5, topic:"loops", q:"compras = [40, 60, 120]. Aplicar desconto: > 100: 10%; > 50 e <= 100: 5%; senão: sem desconto. Qual imprime o total certo?", opts:["total = 0   for v: if v>50: total += v*0.95   elif v>100: total += v*0.90   else: total += v","total = 0   for v: if v>100: total = v*0.90   elif v>50: total = v*0.95   else: total = v","total = 0   for v: if v>100: total += v*0.90   elif v>50: total += v*0.95   else: total += v","total = 0   for v: if v>100: total += v*0.95   elif v>50: total += v*0.90   else: total += v"], correct:2, exp:"Ordem: testa > 100 PRIMEIRO (senão 120 cai no >50 e leva só 5%). Tem que ser += pra acumular (não =). Descontos certos: 90% pra >100, 95% pra >50."},
+  {id:"5.10", quiz:5, topic:"loops", q:"O que o break faz dentro de um loop?", opts:["Encerra o loop mais interno imediatamente e continua a execução após o loop","Reinicia o loop desde o começo","Encerra o programa inteiro (como se fosse um 'exit')","Interrompe apenas a iteração atual e passa para a próxima"], correct:0, exp:"break sai do loop atual. continue pula pra próxima iteração. exit() encerra o programa."},
+
+  // ============ QUIZ 6 ============
+  {id:"6.1", quiz:6, topic:"tipos", q:"Qual é o tipo do valor retornado pela função input() em Python (independentemente do que o usuário digita)?", opts:["str","float","depende do que o usuário digitar","int"], correct:0, exp:"input() retorna SEMPRE str."},
+  {id:"6.2", quiz:6, topic:"loops", q:"Qual será o valor de qtd ao final?", code:"A = [1, 2, 3]\nB = [4, 5, 6]\nalvo = 7\nqtd = 0\nfor a in A:\n    for b in B:\n        if a + b == alvo:\n            qtd += 1", opts:["9","1","2","3"], correct:3, exp:"Pares (a,b) com a+b=7: (1,6), (2,5), (3,4) = 3 pares."},
+  {id:"6.3", quiz:6, topic:"loops", q:"LISTA2 deve ter os nomes que NÃO começam por vogal.", code:"LISTA = [\"ANA\", \"BRUNO\", \"CARLA\", \"EDUARDO\"]\nvogais = \"AEIOU\"\nLISTA2 = []", opts:["for nome: for v in vogais: if nome[0] != v: LISTA2.append(nome)","for nome: if nome[0] not in vogais: LISTA2.append(nome)","for nome: if nome[0] in vogais: LISTA2.append(nome)","for nome: if nome not in vogais: LISTA2.append(nome)"], correct:1, exp:"nome[0] not in vogais checa primeira letra. Opção 1 com loop interno duplica nomes. Opção 3 inverte. Opção 4 compara o nome inteiro."},
+  {id:"6.4", quiz:6, topic:"condicionais", q:"Qual será o valor de r ao final?", code:"L = []\nif L:\n    r = \"tem itens\"\nelse:\n    r = \"vazia\"", opts:["tem itens","Erro","True","vazia"], correct:3, exp:"Lista vazia avalia como False em contexto booleano. Cai no else."},
+  {id:"6.5", quiz:6, topic:"loops", q:"lista_repor deve ter os ÍNDICES dos produtos abaixo do limite.", code:"estoque = [10, 5, 15, 3, 8]\nlimite = 6\nlista_repor = []", opts:["for x in estoque: if x < limite: lista_repor.append(x)","for i in range(len(estoque)): if i < limite: lista_repor.append(i)","for i in range(len(estoque)): if estoque[i] < limite: lista_repor.append(estoque[i])","for i in range(len(estoque)): if estoque[i] < limite: lista_repor.append(i)"], correct:3, exp:"Quer ÍNDICE → range(len(...)) e append(i). Opção 1 itera valor. Opção 2 compara índice (não estoque). Opção 3 acumula valores, não índices."},
+  {id:"6.6", quiz:6, topic:"loops", q:"Qual será o valor de saques ao final?", code:"saldo = 100\nsaques = 0\nwhile saldo >= 30:\n    saldo -= 30\n    saques += 1", opts:["O loop é infinito","3","4","2"], correct:1, exp:"Iter 1: 100→70, saques=1. Iter 2: 70→40, saques=2. Iter 3: 40→10, saques=3. 10<30, sai. Total 3."},
+  {id:"6.7", quiz:6, topic:"strings", q:"Qual é o valor de partes?", code:"frase = \"ola mundo do python\"\npartes = frase.split()", opts:["['o', 'l', 'a', ' ', 'm', ...]","['ola mundo do python']","\"ola, mundo, do, python\"","['ola', 'mundo', 'do', 'python']"], correct:3, exp:"split() sem argumento quebra por espaços e retorna lista de palavras."},
+  {id:"6.8", quiz:6, topic:"listas", q:"Qual será o valor de L1 ao final?", code:"L1 = [1, 2]\nL2 = [3, 4]\nL1.append(L2)", opts:["[[1, 2], [3, 4]]","Erro","[1, 2, [3, 4]]","[1, 2, 3, 4]"], correct:2, exp:"append adiciona o objeto inteiro como UM elemento. Pra concatenar, usa extend() ou + (L1 = L1 + L2)."},
+  {id:"6.9", quiz:6, topic:"comparacoes", q:"Qual é o resultado da expressão \"10\" < \"9\"?", opts:["True, pois a comparação é caractere a caractere e '1' vem antes de '9'","Erro de tipo","False, pois 10 é maior que 9","True, pois strings são sempre comparadas por comprimento"], correct:0, exp:"Strings comparam lexicograficamente (caractere a caractere). '1' (ASCII 49) < '9' (ASCII 57), então '10' < '9' é True. Pegadinha clássica."},
+  {id:"6.10", quiz:6, topic:"condicionais", q:"r deve ser True se um número é o dobro do outro (qualquer ordem).", code:"a = 4\nb = 8\nr = ____", opts:["a == b or b == a","a == 2*b or b == 2*a","a == 2*b and b == 2*a","a == 2*b"], correct:1, exp:"Não importa qual é o dobro de qual → OR. AND exigiria ambos verdadeiros simultaneamente (impossível). Só a == 2*b ignora a outra ordem."},
+  {id:"6.11", quiz:6, topic:"loops", q:"Qual será o valor de total?", code:"L = [10, 20, 30, 40, 50]\ntotal = 0\nfor i in range(len(L)):\n    if i % 2 == 0:\n        total += L[i]", opts:["30","90","150","60"], correct:1, exp:"Soma os valores nos índices pares. i=0:10, i=2:30, i=4:50. Total 90."},
+  {id:"6.12", quiz:6, topic:"loops", q:"Quantas vezes 'Batman' aparece na saída?", code:"a = ['Batman', 'Hulk', 'Thor', 'Aquaman']\nfor i in a:\n    print(a)", opts:["16","0","1","4"], correct:3, exp:"print(a) imprime a LISTA inteira (que tem 1 'Batman'). Loop roda 4x → 4 prints → 4 'Batman'. Pegadinha: print(a), não print(i)."},
+  {id:"6.13", quiz:6, topic:"loops", q:"Qual será o valor de idx_max?", code:"receitas = [100, 105, 130, 140, 200]\nmaior = 0\nidx_max = 0\nfor i in range(1, len(receitas)):\n    cresc = receitas[i] - receitas[i-1]\n    if cresc > maior:\n        maior = cresc\n        idx_max = i", opts:["2","4","0","3"], correct:1, exp:"Cresc: i=1:5, i=2:25, i=3:10, i=4:60. Maior é 60 no i=4."},
+  {id:"6.14", quiz:6, topic:"listas", q:"Qual é len(a) quando a = ['Batman', 'Hulk', 'Thor', 'Aquaman']?", opts:["4","Erro","7","21"], correct:0, exp:"len() de lista conta elementos, não caracteres. 4 strings."},
+  {id:"6.15", quiz:6, topic:"loops", q:"Qual será o valor de cresc?", code:"receitas = [100, 110, 121]\ncresc = []\nfor i in range(1, len(receitas)):\n    c = (receitas[i] - receitas[i-1]) / receitas[i-1] * 100\n    cresc.append(c)", opts:["[10.0, 10.0]","[0, 10.0, 10.0]","[10.0, 21.0]","[100, 110, 121]"], correct:0, exp:"i=1: (110-100)/100*100 = 10.0. i=2: (121-110)/110*100 = 10.0."},
+  {id:"6.16", quiz:6, topic:"strings", q:"Qual será a saída?", code:"a = ['Batman', 'Hulk', 'Thor', 'Aquaman']\nfor i in a:\n    print(len(i))", opts:["0, 1, 2, 3","Batman, Hulk, Thor, Aquaman","6, 4, 4, 7","4 (uma única vez)"], correct:2, exp:"len de cada string: Batman=6, Hulk=4, Thor=4, Aquaman=7."},
+  {id:"6.17", quiz:6, topic:"loops", q:"Lê nomes até ENTER vazio, armazena em LISTA em MAIÚSCULAS, sem incluir vazio.", opts:["LISTA = []   nome = input()   while nome != \"\": LISTA.append(nome)   nome = input()","LISTA = []   while True: nome = input().upper()   LISTA.append(nome) if nome == \"\": break","LISTA = []   nome = input()   while nome != \"\": LISTA.append(nome.upper())   nome = input()","LISTA = []   nome = input()   while nome == \"\": LISTA.append(nome.upper())   nome = input()"], correct:2, exp:"Lê antes do while, append.upper(), lê de novo no fim. Opção 1 não faz upper. Opção 2 inclui vazio antes do break. Opção 4 inverte a condição."},
+  {id:"6.18", quiz:6, topic:"strings", q:"Qual será o valor de qtd?", code:"frase = \"ola mundo do python\"\nqtd = 1\nfor c in frase:\n    if c == \" \":\n        qtd += 1", opts:["5","4","19","3"], correct:1, exp:"3 espaços na frase. qtd começa em 1, +3 = 4. Truque pra contar palavras: nº de espaços + 1."},
+  {id:"6.19", quiz:6, topic:"strings", q:"Qual é o valor de (a, b)?", code:"nome = \"Aquaman\"\na = nome[0]\nb = nome[-1]", opts:["(\"Aquaman\", \"Aquaman\")","(\"A\", \"n\")","(\"A\", \"m\")","(\"q\", \"n\")"], correct:1, exp:"Index 0 = primeiro caractere ('A'). Index -1 = último ('n')."},
+  {id:"6.20", quiz:6, topic:"listas", q:"Qual é o resultado de 'Hulk' in ['Batman', 'Hulk', 'Thor', 'Aquaman']?", opts:["False","1","True","Erro"], correct:2, exp:"Operador in retorna bool. 'Hulk' está na lista → True."},
+
+  // ============ QUIZ 7 ============
+  {id:"7.1", quiz:7, topic:"funcoes", q:"Em uma função que testa se um número é primo e deve retornar True ou False, qual prática é mais adequada?", opts:["Criar obrigatoriamente uma lista para armazenar todos os números primos possíveis","Usar return True ou return False, para que o programa chamador possa usar o resultado","Usar apenas print(\"é primo\") ou print(\"não é primo\"), sem return","Retornar sempre uma string, porque funções não podem retornar booleanos"], correct:1, exp:"Função utilitária deve RETORNAR valor pra que quem chamou use. print só mostra na tela, não dá pra capturar."},
+  {id:"7.2", quiz:7, topic:"funcoes", q:"Qual é a principal vantagem de criar uma função em Python quando uma mesma lógica será usada várias vezes?", opts:["Eliminar a necessidade de testar o código","Evitar repetição de código e permitir reaproveitar a mesma lógica com diferentes entradas","Fazer o Python executar sempre mais rápido, independentemente do código","Impedir o uso de listas e variáveis dentro do programa"], correct:1, exp:"DRY: Don't Repeat Yourself. Função encapsula lógica e aceita parâmetros diferentes."},
+  {id:"7.3", quiz:7, topic:"funcoes", q:"qual afirmação é correta sobre m?", code:"def g(x, y):\n    m = (x + y)/2\n    return m", opts:["m é uma variável local criada dentro da função e usada para calcular o valor retornado","m é automaticamente impressa sempre que a função é chamada","m precisa existir antes da função ser definida","m é obrigatoriamente um parâmetro de entrada da função"], correct:0, exp:"m é local: existe só dentro de g, some quando a função termina. Parâmetros são x e y."},
+  {id:"7.4", quiz:7, topic:"funcoes", q:"Considere a função g(x,y) = (x+y)/2. Qual é o resultado de g(-10, 5)?", opts:["None","-2.5","-5","2.5"], correct:1, exp:"(-10 + 5)/2 = -5/2 = -2.5."},
+  {id:"7.5", quiz:7, topic:"funcoes", q:"Considere f(x) = x**2. Depois de y = f(-4), qual é o valor de y?", opts:["-8","-16","16","None"], correct:2, exp:"(-4)**2 = 16. Negativo ao quadrado dá positivo."},
+  {id:"7.6", quiz:7, topic:"funcoes", q:"divisao(a,b) deve retornar 999999 se b==0, senão a/b. Qual está correto?", opts:["def divisao(a, b): if a == 0: return 999999   return a/b","def divisao(a, b): if b == 0: return 999999   else: return a/b","def divisao(a, b): if b == 0: print(999999)   else: print(a/b)","def divisao(a, b): return a/b"], correct:1, exp:"Tem que checar b==0 (não a==0) e RETORNAR (não print). Opção 4 quebra com b=0."},
+  {id:"7.7", quiz:7, topic:"funcoes", q:"qual é o papel de nome?", code:"def greet(nome):\n    print(\"hello,\", nome)", opts:["É o nome da função que será chamada pelo programa","É obrigatoriamente uma variável global já existente antes da função","É um parâmetro, isto é, um valor recebido pela função quando ela é chamada","É o valor que a função sempre retorna ao final da execução"], correct:2, exp:"nome é parâmetro: recebe valor na chamada (greet('Arthur') → nome = 'Arthur')."},
+  {id:"7.8", quiz:7, topic:"funcoes", q:"mean(l) = sum(l)/len(l). Qual é o resultado de mean([-3, 0, 4, 10])?", opts:["2.0","2.75","11","4"], correct:1, exp:"(-3+0+4+10)/4 = 11/4 = 2.75."},
+  {id:"7.9", quiz:7, topic:"funcoes", q:"get_aliquota(pdi): 0.225 até 180 dias, 0.20 de 181 a 360, 0.175 de 361 a 720, 0.15 acima de 720. Resultado de get_aliquota(360)?", opts:["0.15","0.225","0.175","0.20"], correct:3, exp:"360 cai na faixa 181-360 → 0.20. Atenção: o limite superior 360 é INCLUÍDO."},
+  {id:"7.10", quiz:7, topic:"funcoes", q:"Função usa print(x**2) mas SEM return. Se z = essa_funcao(5), o que acontece?", opts:["A função imprime 25, mas z recebe None, pois não houve valor retornado","O Python cria automaticamente um erro, pois toda função precisa ter return","A variável z recebe o valor 25, porque qualquer print também retorna o valor impresso","A variável z recebe a string \"25\""], correct:0, exp:"Função sem return implícito devolve None. print é EFEITO COLATERAL, não retorno. z = None."},
+
+  // ============ EXTRAS - TIPOS ============
+  {id:"E.T1", quiz:8, topic:"tipos", q:"Qual é o tipo de True em Python?", opts:["int","bool","str","True"], correct:1, exp:"True/False são bool. Pegadinha: bool é subclasse de int, então True equivale a 1 numericamente."},
+  {id:"E.T2", quiz:8, topic:"tipos", q:"Qual é o tipo de 3.14?", opts:["int","decimal","float","double"], correct:2, exp:"Números com ponto são float. Python não tem 'decimal' nem 'double' nativo."},
+  {id:"E.T3", quiz:8, topic:"tipos", q:"Qual o resultado de True + 1?", opts:["Erro","True","1","2"], correct:3, exp:"True equivale a 1 e False a 0. True + 1 = 1 + 1 = 2 (int)."},
+  {id:"E.T4", quiz:8, topic:"tipos", q:"Qual o tipo retornado por int(\"5\")?", opts:["str","int","float","Erro"], correct:1, exp:"int() converte string numérica em int."},
+  {id:"E.T5", quiz:8, topic:"tipos", q:"Qual o tipo de [1, 2, 3]?", opts:["tuple","list","set","array"], correct:1, exp:"Colchetes = list. Parênteses = tuple. Chaves = set ou dict."},
+  {id:"E.T6", quiz:8, topic:"tipos", q:"Após nota = 7.5, qual é type(nota)?", opts:["int","float","decimal","double"], correct:1, exp:"Literal com ponto vira float automaticamente, mesmo se for 7.0."},
+  {id:"E.T7", quiz:8, topic:"tipos", q:"Qual o tipo de \"True\" (com aspas)?", opts:["bool","str","True","Erro"], correct:1, exp:"Aspas → string. O conteúdo ser a palavra True não muda nada."},
+  {id:"E.T8", quiz:8, topic:"tipos", q:"Qual o tipo do resultado de 7 // 2?", opts:["float","int","str","bool"], correct:1, exp:"// é divisão inteira. Se ambos operandos forem int, resultado é int."},
+  {id:"E.T9", quiz:8, topic:"tipos", q:"Qual o tipo do resultado de 7 / 2?", opts:["int","float","decimal","tuple"], correct:1, exp:"/ em Python 3 SEMPRE retorna float, mesmo divisão exata. Pra inteiro, usa //."},
+  {id:"E.T10", quiz:8, topic:"tipos", q:"Qual o resultado de bool([])?", opts:["True","False","Erro","None"], correct:1, exp:"Lista vazia é False. Lista com qualquer elemento (mesmo [0]) é True."},
+  {id:"E.T11", quiz:8, topic:"tipos", q:"Qual o resultado de bool(0)?", opts:["True","False","0","None"], correct:1, exp:"Zero é o único número avaliado como False. Qualquer outro (positivo, negativo, decimal) é True."},
+  {id:"E.T12", quiz:8, topic:"tipos", q:"Qual o resultado de bool(\"0\")?", opts:["True","False","0","Erro"], correct:0, exp:"String NÃO VAZIA é True, mesmo que o conteúdo seja '0' ou ' '. Só '' (string vazia) é False."},
+  {id:"E.T13", quiz:8, topic:"tipos", q:"Qual o resultado de int('3.5')?", opts:["3","4","Erro (ValueError)","3.5"], correct:2, exp:"int() não aceita string com ponto. Tem que passar por float antes: int(float('3.5')) = 3."},
+  {id:"E.T14", quiz:8, topic:"tipos", q:"Considere x = None. Qual é type(x)?", opts:["NoneType","bool","str","False"], correct:0, exp:"None é o único valor do tipo NoneType. Não é zero, não é False, não é string vazia."},
+
+  // ============ EXTRAS - CONVERSAO ============
+  {id:"E.C1", quiz:8, topic:"conversao", q:"Qual é o resultado de int(3.7)?", opts:["4","3","3.0","3.7"], correct:1, exp:"int() trunca pra zero (não arredonda). 3.7 vira 3, -3.7 vira -3. Pra arredondar, use round()."},
+  {id:"E.C2", quiz:8, topic:"conversao", q:"Qual é o resultado de float('3.14')?", opts:["3","3.14","Erro","'3.14'"], correct:1, exp:"float() converte string com decimal pra float."},
+  {id:"E.C3", quiz:8, topic:"conversao", q:"Qual é o resultado de str(True)?", opts:["'True'","True","1","'1'"], correct:0, exp:"str() converte qualquer valor pra texto. True vira 'True' (string)."},
+  {id:"E.C4", quiz:8, topic:"conversao", q:"Qual é o resultado de int(True) + int(False)?", opts:["0","1","2","Erro"], correct:1, exp:"int(True)=1, int(False)=0. 1+0=1."},
+  {id:"E.C5", quiz:8, topic:"conversao", q:"Qual é o resultado de round(3.7)?", opts:["3","4","3.7","Erro"], correct:1, exp:"round() arredonda pro inteiro mais próximo. 3.7 → 4. 3.4 → 3."},
+  {id:"E.C6", quiz:8, topic:"conversao", q:"Qual é o resultado de str(123) + str(456)?", opts:["579","'123456'","'123' + '456'","Erro"], correct:1, exp:"str(int) gera string. + entre strings concatena: '123'+'456' = '123456'."},
+  {id:"E.C7", quiz:8, topic:"conversao", q:"Qual é o resultado de int('3.14')?", opts:["3","Erro (ValueError)","3.14","4"], correct:1, exp:"int() não aceita string com ponto decimal. Solução: int(float('3.14')) = 3."},
+  {id:"E.C8", quiz:8, topic:"conversao", q:"Qual é o resultado de float('abc')?", opts:["'abc'","0","Erro (ValueError)","None"], correct:2, exp:"float() de string não numérica gera ValueError. Programa quebra. Pra evitar, usar try/except."},
+  {id:"E.C9", quiz:8, topic:"conversao", q:"Considere x = '1.5'. Qual converte x corretamente pra float?", opts:["int(x)","float(x)","str(x)","bool(x)"], correct:1, exp:"float() aceita string com ponto. int() daria erro pq tem ponto."},
+  {id:"E.C10", quiz:8, topic:"conversao", q:"O usuário digita 'a'. O que acontece com n = int(input())?", opts:["n recebe 0","n recebe None","Ocorre ValueError","n recebe 'a'"], correct:2, exp:"int() de string não numérica gera ValueError. Programa quebra."},
+  {id:"E.C11", quiz:8, topic:"conversao", q:"Qual é o resultado de bool(-1)?", opts:["False","True","-1","Erro"], correct:1, exp:"Qualquer número diferente de zero é True. Negativos contam como True também."},
+  {id:"E.C12", quiz:8, topic:"conversao", q:"Considere preço com vírgula: p = '5,50'. Como converter pra float?", opts:["float(p)","float(p.replace(',', '.'))","int(p) / 100","str(p)"], correct:1, exp:"BR usa vírgula decimal, mas Python espera ponto. Substitui antes de converter."},
+  {id:"E.C13", quiz:8, topic:"conversao", q:"Qual o resultado de str(3.14) + str(2.71)?", opts:["5.85","'3.142.71'","Erro","'3.14' + '2.71'"], correct:1, exp:"str converte cada float pra string e + concatena. Não soma."},
+
+  // ============ EXTRAS - OPERADORES ============
+  {id:"E.O1", quiz:8, topic:"operadores", q:"Qual o resultado de 7 // 2?", opts:["3.5","3","4","1"], correct:1, exp:"// é divisão inteira (truncada pra baixo). 7/2 = 3.5, // pega o inteiro: 3."},
+  {id:"E.O2", quiz:8, topic:"operadores", q:"Qual o resultado de 7 % 2?", opts:["3","0","1","3.5"], correct:2, exp:"% é resto (módulo). 7 dividido por 2 dá quociente 3 e resto 1."},
+  {id:"E.O3", quiz:8, topic:"operadores", q:"Qual o resultado de 10 % 3?", opts:["3","1","0","10"], correct:1, exp:"10/3 = 3 com resto 1."},
+  {id:"E.O4", quiz:8, topic:"operadores", q:"Qual o resultado de 10 % 5?", opts:["2","5","1","0"], correct:3, exp:"10 é múltiplo de 5, resto é 0. Use n % k == 0 pra testar se n é múltiplo de k."},
+  {id:"E.O5", quiz:8, topic:"operadores", q:"Qual o resultado de 2 ** 3?", opts:["6","8","9","23"], correct:1, exp:"** é potência. 2³ = 2*2*2 = 8."},
+  {id:"E.O6", quiz:8, topic:"operadores", q:"Qual o resultado de 2 ** 0?", opts:["0","1","2","Erro"], correct:1, exp:"Qualquer número (não zero) elevado a 0 é 1."},
+  {id:"E.O7", quiz:8, topic:"operadores", q:"Qual o resultado de 2 + 3 * 4?", opts:["20","14","9","11"], correct:1, exp:"Multiplicação tem precedência sobre soma: 3*4 = 12, depois 2+12 = 14."},
+  {id:"E.O8", quiz:8, topic:"operadores", q:"Qual o resultado de (2 + 3) * 4?", opts:["14","20","11","9"], correct:1, exp:"Parênteses primeiro: (2+3)=5, depois 5*4=20."},
+  {id:"E.O9", quiz:8, topic:"operadores", q:"Qual o resultado de 100 / 4?", opts:["25","25.0","24","0.04"], correct:1, exp:"/ em Python 3 SEMPRE retorna float, mesmo divisão exata. Pra ter int, usa //."},
+  {id:"E.O10", quiz:8, topic:"operadores", q:"Qual o resultado de 100 // 4?", opts:["25.0","25","24","Erro"], correct:1, exp:"// entre dois ints retorna int."},
+  {id:"E.O11", quiz:8, topic:"operadores", q:"Qual o resultado de abs(-7)?", opts:["-7","7","0","Erro"], correct:1, exp:"abs() retorna valor absoluto (sem sinal). abs(-7) = 7. abs(7) = 7."},
+  {id:"E.O12", quiz:8, topic:"operadores", q:"Qual o resultado de min(3, 1, 5)?", opts:["3","1","5","9"], correct:1, exp:"min() retorna o menor. Aceita argumentos soltos OU iterável."},
+  {id:"E.O13", quiz:8, topic:"operadores", q:"Qual o resultado de max([3, 1, 5])?", opts:["3","1","5","9"], correct:2, exp:"max() aceita lista. Também funciona com argumentos: max(3,1,5)."},
+  {id:"E.O14", quiz:8, topic:"operadores", q:"Pra checar se um número n é par:", opts:["n / 2 == 0","n % 2 == 0","n // 2 == 0","n ** 2 == 0"], correct:1, exp:"Par tem resto zero quando dividido por 2. Use módulo (%)."},
+  {id:"E.O15", quiz:8, topic:"operadores", q:"Qual operador concatena strings?", opts:["&","+","++","concat"], correct:1, exp:"+ entre strings concatena. + entre números soma. Operação str+int dá erro (precisa converter)."},
+  {id:"E.O16", quiz:8, topic:"operadores", q:"Qual é o resultado de 5 ** 2 + 3 * 2?", opts:["62","31","13","29"], correct:1, exp:"Precedência: ** > * > +. 5**2 = 25, 3*2 = 6, 25+6 = 31."},
+
+  // ============ EXTRAS - LISTAS ============
+  {id:"E.L1", quiz:8, topic:"listas", q:"Qual o resultado de [1, 2, 3] + [4, 5]?", opts:["[1,2,3,4,5]","[5,7,3]","Erro","[[1,2,3],[4,5]]"], correct:0, exp:"+ entre listas concatena (cria lista nova). Diferente de append, que adiciona um único elemento."},
+  {id:"E.L2", quiz:8, topic:"listas", q:"Qual o resultado de [1, 2] * 3?", opts:["[3, 6]","[1, 2, 1, 2, 1, 2]","Erro","6"], correct:1, exp:"lista * int repete a lista n vezes. Útil pra inicializar: [0]*5 = [0,0,0,0,0]."},
+  {id:"E.L3", quiz:8, topic:"listas", q:"Considere lista = [10, 20, 30, 40, 50]. Qual o resultado de lista[::-1]?", opts:["[10,20,30,40,50]","[50,40,30,20,10]","[10,30,50]","Erro"], correct:1, exp:"Slice [::-1] inverte (step -1). Cria lista nova, não modifica a original."},
+  {id:"E.L4", quiz:8, topic:"listas", q:"Considere lista = [1, 2, 3, 4, 5]. Qual o resultado de lista[::2]?", opts:["[1,2,3,4,5]","[2,4]","[1,3,5]","[1,2]"], correct:2, exp:"[::2] pega de 2 em 2 a partir do início. Indices 0,2,4 = elementos 1,3,5."},
+  {id:"E.L5", quiz:8, topic:"listas", q:"Considere lista = [10, 20, 30]. O que faz del lista[1]?", opts:["Remove o primeiro elemento","Remove o elemento de índice 1 (o 20)","Cria erro","Apaga a lista inteira"], correct:1, exp:"del lista[i] remove o elemento na posição i. lista vira [10, 30]."},
+  {id:"E.L6", quiz:8, topic:"listas", q:"Considere lista = [1, 2, 3]. O que lista.pop() retorna?", opts:["1","3","None","[1, 2]"], correct:1, exp:"pop() sem argumento remove e retorna o ÚLTIMO elemento. Lista fica [1, 2]."},
+  {id:"E.L7", quiz:8, topic:"listas", q:"Considere lista = [10, 20, 30]. O que lista.pop(0) retorna?", opts:["10","30","None","[20, 30]"], correct:0, exp:"pop(i) remove e retorna o elemento na posição i. pop(0) tira o primeiro."},
+  {id:"E.L8", quiz:8, topic:"listas", q:"Considere lista = ['a', 'b', 'c', 'b']. O que lista.index('b') retorna?", opts:["1","2","[1, 3]","2 (count)"], correct:0, exp:"index() retorna a POSIÇÃO da PRIMEIRA ocorrência. Pra contar quantas vezes, usa count()."},
+  {id:"E.L9", quiz:8, topic:"listas", q:"Considere lista = ['a', 'b', 'a', 'c', 'a']. O que lista.count('a') retorna?", opts:["1","3","[0, 2, 4]","5"], correct:1, exp:"count() retorna quantas vezes o elemento aparece na lista."},
+
+  // ============ EXTRAS - STRINGS ============
+  {id:"E.S1", quiz:8, topic:"strings", q:"Qual é o resultado de 'abc'.upper()?", opts:["'abc'","'ABC'","'Abc'","Erro"], correct:1, exp:"upper() devolve string em maiúsculas. NÃO modifica a original (strings são imutáveis)."},
+  {id:"E.S2", quiz:8, topic:"strings", q:"Qual é o resultado de 'ABC'.lower()?", opts:["'ABC'","'abc'","'Abc'","Erro"], correct:1, exp:"lower() devolve string em minúsculas."},
+  {id:"E.S3", quiz:8, topic:"strings", q:"Qual é o resultado de 'banana'.replace('a', 'X')?", opts:["'bXnana'","'bXnXnX'","'banana'","'XbXnXnXa'"], correct:1, exp:"replace() substitui TODAS as ocorrências, não só a primeira. Pra limitar, passa o terceiro argumento."},
+  {id:"E.S4", quiz:8, topic:"strings", q:"Qual é o resultado de '   hello   '.strip()?", opts:["'   hello   '","'hello   '","'   hello'","'hello'"], correct:3, exp:"strip() remove espaços (e \\n, \\t) das DUAS pontas. Pra um lado só: lstrip() ou rstrip()."},
+  {id:"E.S5", quiz:8, topic:"strings", q:"Considere s = 'python'. Qual o valor de s[1]?", opts:["'p'","'y'","'t'","'n'"], correct:1, exp:"Index 0 = 'p', index 1 = 'y'. Strings indexam como listas."},
+  {id:"E.S6", quiz:8, topic:"strings", q:"Considere s = 'python'. Qual o valor de s[1:4]?", opts:["'pyt'","'yth'","'ytho'","'pyth'"], correct:1, exp:"Slice [1:4] inclui 1, exclui 4. Posições 1,2,3: 'y','t','h' = 'yth'."},
+  {id:"E.S7", quiz:8, topic:"strings", q:"Qual é o resultado de 'abc' + 'def'?", opts:["'abcdef'","Erro","'abc def'","['abc','def']"], correct:0, exp:"+ entre strings concatena."},
+  {id:"E.S8", quiz:8, topic:"strings", q:"Qual é o resultado de 'ab' * 3?", opts:["6","'ababab'","['ab','ab','ab']","Erro"], correct:1, exp:"str * int repete a string n vezes. 'ab'*3 = 'ababab'."},
+  {id:"E.S9", quiz:8, topic:"strings", q:"Qual é o resultado de len('python')?", opts:["5","6","7","Erro"], correct:1, exp:"len() de string conta caracteres. 'python' tem 6 letras."},
+  {id:"E.S10", quiz:8, topic:"strings", q:"Considere email = 'arthur@fgv.br'. Qual o resultado de email.startswith('arthur')?", opts:["True","False","'arthur'","Erro"], correct:0, exp:"startswith() retorna bool. Email começa com 'arthur' → True."},
+  {id:"E.S11", quiz:8, topic:"strings", q:"Considere arquivo = 'documento.pdf'. Qual o resultado de arquivo.endswith('.pdf')?", opts:["True","False","'.pdf'","1"], correct:0, exp:"endswith() checa se a string termina com o argumento. Útil pra validar extensões."},
+  {id:"E.S12", quiz:8, topic:"strings", q:"Qual o resultado de '-'.join(['a', 'b', 'c'])?", opts:["'abc'","'a-b-c'","['a-b-c']","Erro"], correct:1, exp:"join() concatena os itens da lista usando o separador. Inverso de split."},
+
+  // ============ EXTRAS - CONDICIONAIS ============
+  {id:"E.CD1", quiz:8, topic:"condicionais", q:"Qual é o resultado de True and False?", opts:["True","False","Erro","1"], correct:1, exp:"and exige AMBOS True. Se um for False, resultado é False."},
+  {id:"E.CD2", quiz:8, topic:"condicionais", q:"Qual é o resultado de True or False?", opts:["True","False","Erro","0"], correct:0, exp:"or exige PELO MENOS UM True."},
+  {id:"E.CD3", quiz:8, topic:"condicionais", q:"Qual é o resultado de not True?", opts:["True","False","1","0"], correct:1, exp:"not inverte o booleano."},
+  {id:"E.CD4", quiz:8, topic:"condicionais", q:"Qual é a saída?", code:"x = 0\nif x:\n    print('A')\nelse:\n    print('B')", opts:["A","B","Erro","0"], correct:1, exp:"0 é avaliado como False. Cai no else."},
+  {id:"E.CD5", quiz:8, topic:"condicionais", q:"Qual é a saída?", code:"s = ''\nif s:\n    print('cheio')\nelse:\n    print('vazio')", opts:["cheio","vazio","Erro","''"], correct:1, exp:"String vazia '' é False. Cai no else."},
+  {id:"E.CD6", quiz:8, topic:"condicionais", q:"Qual é a saída?", code:"s = '0'\nif s:\n    print('A')\nelse:\n    print('B')", opts:["A","B","0","Erro"], correct:0, exp:"String '0' tem 1 caractere, NÃO é vazia. É True. Cai no if. Pegadinha: bool('0') = True, mas bool(0) = False."},
+  {id:"E.CD7", quiz:8, topic:"condicionais", q:"Qual é o resultado de 5 > 3 and 10 < 20?", opts:["True","False","Erro","5"], correct:0, exp:"5>3 é True, 10<20 é True. True and True = True."},
+  {id:"E.CD8", quiz:8, topic:"condicionais", q:"Qual é o resultado de 5 > 3 and 10 > 20?", opts:["True","False","Erro","5"], correct:1, exp:"5>3 é True, 10>20 é False. True and False = False."},
+  {id:"E.CD9", quiz:8, topic:"condicionais", q:"Qual expressão checa se idade está entre 18 e 65 (inclusive ambos)?", opts:["idade > 18 and idade < 65","18 <= idade <= 65","idade >= 18 or idade <= 65","idade in [18, 65]"], correct:1, exp:"Encadeamento direto funciona em Python. Opção 1 exclui os limites. Opção 3 com or é sempre True. Opção 4 verifica se idade é 18 OU 65 exatamente."},
+  {id:"E.CD10", quiz:8, topic:"condicionais", q:"Qual é o resultado de not (5 < 3)?", opts:["True","False","Erro","5"], correct:0, exp:"5<3 é False. not False = True."},
+
+  // ============ EXTRAS - FUNCOES ============
+  {id:"E.F1", quiz:8, topic:"funcoes", q:"Qual o resultado de f(5)?", code:"def f(x, y=10):\n    return x + y", opts:["5","10","15","Erro"], correct:2, exp:"y=10 é argumento default. f(5) usa x=5, y=10. 5+10=15."},
+  {id:"E.F2", quiz:8, topic:"funcoes", q:"Qual o resultado de f(5, 20)?", code:"def f(x, y=10):\n    return x + y", opts:["15","25","30","Erro"], correct:1, exp:"f(5, 20) sobrescreve o default: x=5, y=20. 5+20=25."},
+  {id:"E.F3", quiz:8, topic:"funcoes", q:"Qual o tipo do retorno de f()?", code:"def f():\n    return 1, 2, 3", opts:["int","list","tuple","Erro"], correct:2, exp:"Vírgulas no return criam tupla. f() retorna (1, 2, 3)."},
+  {id:"E.F4", quiz:8, topic:"funcoes", q:"Qual o resultado de dobro(5)?", code:"def soma(a, b):\n    return a + b\n\ndef dobro(n):\n    return soma(n, n)", opts:["5","10","25","Erro"], correct:1, exp:"dobro(5) chama soma(5,5) = 10. Funções podem chamar outras funções."},
+  {id:"E.F5", quiz:8, topic:"funcoes", q:"Qual a saída?", code:"x = 10\ndef f():\n    x = 20\n    return x\n\nprint(f())\nprint(x)", opts:["20 / 20","10 / 10","20 / 10","Erro"], correct:2, exp:"Atribuição dentro de função cria variável LOCAL. f() retorna 20, mas x global continua 10. Pra alterar global, usa 'global x'."},
+  {id:"E.F6", quiz:8, topic:"funcoes", q:"Após l = [1,2]; adiciona(l, 3), qual o valor de l?", code:"def adiciona(lista, item):\n    lista.append(item)\n    return lista", opts:["[1,2]","[1,2,3]","[3]","None"], correct:1, exp:"Listas são MUTÁVEIS e passadas por referência. Modificar dentro afeta a original. Cuidado com efeitos colaterais."},
+  {id:"E.F7", quiz:8, topic:"funcoes", q:"Qual o resultado de saudacao('Arthur')?", code:"def saudacao(nome):\n    if nome == '':\n        return 'Olá, anônimo'\n    return 'Olá, ' + nome", opts:["'Olá, anônimo'","'Olá, Arthur'","'Arthur'","None"], correct:1, exp:"nome != '', pula o primeiro return. Vai pro return final = 'Olá, Arthur'."},
+  {id:"E.F8", quiz:8, topic:"funcoes", q:"Qual o resultado de fat(4)?", code:"def fat(n):\n    if n <= 1:\n        return 1\n    return n * fat(n-1)", opts:["4","10","24","Erro de recursão"], correct:2, exp:"Recursão: fat(4) = 4*fat(3) = 4*3*fat(2) = 4*3*2*fat(1) = 4*3*2*1 = 24."},
+  {id:"E.F9", quiz:8, topic:"funcoes", q:"Qual o resultado de conta_pares([1, 2, 3, 4, 5, 6])?", code:"def conta_pares(lista):\n    c = 0\n    for n in lista:\n        if n % 2 == 0:\n            c += 1\n    return c", opts:["2","3","6","12"], correct:1, exp:"Pares na lista: 2, 4, 6 = 3."},
+  {id:"E.F10", quiz:8, topic:"funcoes", q:"Qual o valor de resultado?", code:"def f(a, b):\n    return a * b\n\nresultado = f(b=3, a=4)", opts:["7","12","Erro (ordem invertida)","None"], correct:1, exp:"Argumentos nomeados (keyword) podem vir em qualquer ordem: a=4, b=3. 4*3=12."},
+
+  // ============ EXTRAS - COMPARACOES ============
+  {id:"E.CO1", quiz:8, topic:"comparacoes", q:"Qual é o resultado de 5 == 5.0?", opts:["True","False","Erro","None"], correct:0, exp:"Python compara VALOR, não tipo. int 5 == float 5.0 → True."},
+  {id:"E.CO2", quiz:8, topic:"comparacoes", q:"Qual é o resultado de 5 == \"5\"?", opts:["True","False","Erro","5"], correct:1, exp:"Tipos diferentes (int vs str) → False. Pra comparar, converte: 5 == int('5') ou str(5) == '5'."},
+  {id:"E.CO3", quiz:8, topic:"comparacoes", q:"Qual é o resultado de True == 1?", opts:["False","True","Erro","1"], correct:1, exp:"Bool é subclasse de int. True equivale a 1 numericamente. Por isso True+True = 2."},
+  {id:"E.CO4", quiz:8, topic:"comparacoes", q:"Qual é o resultado de False == 0?", opts:["True","False","Erro","0"], correct:0, exp:"False equivale a 0 numericamente."},
+  {id:"E.CO5", quiz:8, topic:"comparacoes", q:"Qual é o resultado de [1, 2] == [1, 2]?", opts:["True","False","Erro","1"], correct:0, exp:"Listas iguais elemento-a-elemento são iguais com ==."},
+  {id:"E.CO6", quiz:8, topic:"comparacoes", q:"Qual é o resultado de [1, 2] == [2, 1]?", opts:["True","False","Erro","1"], correct:1, exp:"Ordem importa em listas. [1,2] != [2,1]."},
+  {id:"E.CO7", quiz:8, topic:"comparacoes", q:"Qual é o resultado de None == None?", opts:["True","False","Erro","None"], correct:0, exp:"None == None é True. Mas o idiomático é 'is None' (identidade), não '== None'."},
+  {id:"E.CO8", quiz:8, topic:"comparacoes", q:"Qual é o resultado de 'abc' == 'abc'?", opts:["True","False","Erro","'abc'"], correct:0, exp:"Strings com mesmo conteúdo são iguais com ==."},
+  {id:"E.CO9", quiz:8, topic:"comparacoes", q:"Qual é o resultado de 'abc' < 'abd'?", opts:["True","False","Erro","'abd'"], correct:0, exp:"Comparação lexicográfica: primeiros 2 iguais ('ab'), terceiro 'c' < 'd' → True."},
+  {id:"E.CO10", quiz:8, topic:"comparacoes", q:"Qual é o resultado de 3 != \"3\"?", opts:["True","False","Erro","3"], correct:0, exp:"!= é diferente. int 3 não é igual a str '3' → diferente é True."},
+  {id:"E.CO11", quiz:8, topic:"comparacoes", q:"Qual é o resultado de 1 < 5 < 10?", opts:["True","False","Erro","5"], correct:0, exp:"Encadeamento: equivale a (1<5) and (5<10) = True. Python permite, diferente de C/Java."},
+  {id:"E.CO12", quiz:8, topic:"comparacoes", q:"Qual é o resultado de 5 in [1, 2, 3]?", opts:["True","False","Erro","5"], correct:1, exp:"in checa presença na lista. 5 não está → False."},
+  {id:"E.CO13", quiz:8, topic:"comparacoes", q:"Qual é o resultado de 'a' in 'banana'?", opts:["True","False","Erro","3"], correct:0, exp:"in funciona em strings (substring check). 'banana' contém 'a' → True."},
+  {id:"E.CO14", quiz:8, topic:"comparacoes", q:"Qual é o resultado de 5 not in [1, 2, 3]?", opts:["True","False","Erro","5"], correct:0, exp:"not in é o oposto de in. 5 não está → True."},
+  {id:"E.CO15", quiz:8, topic:"comparacoes", q:"Qual é o resultado de type(5 == 5)?", opts:["int","bool","str","Erro"], correct:1, exp:"Toda comparação retorna bool. == produz True/False (bool), não 1/0."},
+  {id:"E.CO16", quiz:8, topic:"comparacoes", q:"Qual a saída?", code:"a = 5\nb = 5\nprint(a == b)", opts:["True","False","5","Erro"], correct:0, exp:"== compara valores. 5 == 5 → True."},
+  {id:"E.CO17", quiz:8, topic:"comparacoes", q:"Qual é o resultado de [1, 2, 3] < [1, 2, 4]?", opts:["True","False","Erro","1"], correct:0, exp:"Listas comparam lexicograficamente: primeiros 2 iguais, terceiro 3 < 4 → True. Tipo dicionário."},
+  {id:"E.CO18", quiz:8, topic:"comparacoes", q:"Qual é o resultado de '10' > '9'?", opts:["True","False","Erro","'9'"], correct:1, exp:"Comparação lexicográfica: '1' < '9' (ASCII 49 < 57). Então '10' < '9', logo '10' > '9' é False. Pegadinha clássica."},
+  {id:"E.CO19", quiz:8, topic:"comparacoes", q:"Qual a saída?", code:"if 5 == 5.0:\n    print('iguais')\nelse:\n    print('diferentes')", opts:["iguais","diferentes","Erro","5"], correct:0, exp:"Python compara valor numérico. int 5 == float 5.0 → True."},
+  {id:"E.CO20", quiz:8, topic:"comparacoes", q:"Qual é o resultado de 0 == False?", opts:["True","False","Erro","None"], correct:0, exp:"0 e False são equivalentes em Python (False vale 0). Mesmo tipo bool/int compatível."}
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let state = {
+  mode: "treino",
+  questions: [],     // ordered, possibly shuffled
+  optionMap: {},     // qIndex → array of original-option-index in display order
+  answers: {},       // qIndex → display-option-index chosen
+  current: 0,
+  startTime: null,
+  timerLimit: null,  // ms or null
+  timerInterval: null
+};
+
+// ============================================================
+// UTILS
+// ============================================================
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function uniq(arr) { return [...new Set(arr)]; }
+
+function escapeHtml(s) {
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+// ============================================================
+// SETUP SCREEN
+// ============================================================
+const allQuizzes = uniq(QUESTIONS.map(q => q.quiz)).sort();
+const allTopics = uniq(QUESTIONS.map(q => q.topic)).sort();
+const selectedQuizzes = new Set(allQuizzes);
+const selectedTopics = new Set(); // empty = all
+
+function renderFilters() {
+  const qf = document.getElementById("quizFilter");
+  qf.innerHTML = "";
+  allQuizzes.forEach(q => {
+    const t = document.createElement("span");
+    t.className = "tag" + (selectedQuizzes.has(q) ? " active" : "");
+    t.textContent = "Quiz " + q;
+    t.onclick = () => {
+      if (selectedQuizzes.has(q)) selectedQuizzes.delete(q);
+      else selectedQuizzes.add(q);
+      renderFilters();
+      updatePoolSize();
+    };
+    qf.appendChild(t);
+  });
+
+  const tf = document.getElementById("topicFilter");
+  tf.innerHTML = "";
+  allTopics.forEach(tp => {
+    const t = document.createElement("span");
+    t.className = "tag" + (selectedTopics.has(tp) ? " active" : "");
+    t.textContent = tp;
+    t.onclick = () => {
+      if (selectedTopics.has(tp)) selectedTopics.delete(tp);
+      else selectedTopics.add(tp);
+      renderFilters();
+      updatePoolSize();
+    };
+    tf.appendChild(t);
+  });
+}
+
+function getPool() {
+  return QUESTIONS.filter(q =>
+    selectedQuizzes.has(q.quiz) &&
+    (selectedTopics.size === 0 || selectedTopics.has(q.topic))
+  );
+}
+
+function updatePoolSize() {
+  const pool = getPool();
+  document.getElementById("poolSize").textContent = `(${pool.length} disponíveis)`;
+  const numQ = document.getElementById("numQ");
+  numQ.max = pool.length;
+  if (parseInt(numQ.value) > pool.length) numQ.value = pool.length;
+}
+
+document.querySelectorAll('input[name="mode"]').forEach(r => {
+  r.addEventListener("change", e => {
+    document.getElementById("timerRow").style.display = e.target.value === "simulado" ? "flex" : "none";
+  });
+});
+
+renderFilters();
+updatePoolSize();
+
+// ============================================================
+// START QUIZ
+// ============================================================
+function startQuiz() {
+  const pool = getPool();
+  let n = parseInt(document.getElementById("numQ").value) || pool.length;
+  n = Math.min(n, pool.length);
+  if (n === 0) { alert("Pool vazio. Selecione ao menos um quiz."); return; }
+
+  state.mode = document.querySelector('input[name="mode"]:checked').value;
+  const shuffleQ = document.getElementById("shuffleQ").checked;
+  const shuffleA = document.getElementById("shuffleA").checked;
+
+  let qs = pool.slice();
+  if (shuffleQ) qs = shuffle(qs);
+  qs = qs.slice(0, n);
+
+  state.questions = qs;
+  state.optionMap = {};
+  state.answers = {};
+  state.current = 0;
+  state.startTime = Date.now();
+
+  qs.forEach((q, i) => {
+    const indices = q.opts.map((_, j) => j);
+    state.optionMap[i] = shuffleA ? shuffle(indices) : indices;
+  });
+
+  if (state.mode === "simulado") {
+    const min = parseInt(document.getElementById("timerMin").value) || 30;
+    state.timerLimit = min * 60 * 1000;
+    state.timerInterval = setInterval(updateTimer, 1000);
+  } else {
+    state.timerLimit = null;
+  }
+
+  document.getElementById("setup").classList.add("hidden");
+  document.getElementById("quiz").classList.remove("hidden");
+  renderQuestion();
+}
+
+function updateTimer() {
+  if (state.timerLimit === null) {
+    document.getElementById("timerDisplay").textContent = "";
+    return;
+  }
+  const elapsed = Date.now() - state.startTime;
+  const remaining = state.timerLimit - elapsed;
+  const td = document.getElementById("timerDisplay");
+  if (remaining <= 0) {
+    td.textContent = "00:00";
+    td.classList.add("danger");
+    finishQuiz();
+    return;
+  }
+  const min = Math.floor(remaining / 60000);
+  const sec = Math.floor((remaining % 60000) / 1000);
+  td.textContent = `${String(min).padStart(2,"0")}:${String(sec).padStart(2,"0")}`;
+  td.classList.toggle("warn", remaining < 5*60*1000 && remaining >= 60*1000);
+  td.classList.toggle("danger", remaining < 60*1000);
+}
+
+// ============================================================
+// RENDER QUESTION
+// ============================================================
+function renderQuestion() {
+  const i = state.current;
+  const q = state.questions[i];
+  const total = state.questions.length;
+
+  document.getElementById("qCounter").textContent = `Questão ${i+1} / ${total} • Quiz ${q.quiz} • ${q.topic}`;
+  document.getElementById("progressFill").style.width = `${((i+1)/total)*100}%`;
+  updateTimer();
+
+  // Question text
+  let html = "";
+  if (q.q) html += `<div class="question-text">${escapeHtml(q.q)}</div>`;
+  if (q.code) html += `<pre><code>${escapeHtml(q.code)}</code></pre>`;
+  if (q.question) html += `<div class="question-text">${escapeHtml(q.question)}</div>`;
+  document.getElementById("questionContainer").innerHTML = html;
+
+  // Options
+  const optsContainer = document.getElementById("optionsContainer");
+  optsContainer.innerHTML = "";
+  const order = state.optionMap[i];
+  const userPick = state.answers[i];
+  const letters = ["A","B","C","D","E","F"];
+
+  order.forEach((origIdx, displayIdx) => {
+    const opt = document.createElement("div");
+    opt.className = "option";
+    opt.innerHTML = `<span class="option-letter">${letters[displayIdx]}</span><span class="option-text">${escapeHtml(q.opts[origIdx])}</span>`;
+
+    if (userPick !== undefined) {
+      // If answered, show feedback (treino mode)
+      if (state.mode === "treino") {
+        if (origIdx === q.correct) opt.classList.add("correct");
+        if (displayIdx === userPick && origIdx !== q.correct) opt.classList.add("wrong");
+      } else {
+        if (displayIdx === userPick) opt.classList.add("selected");
+      }
+    }
+
+    opt.onclick = () => selectOption(displayIdx);
+    optsContainer.appendChild(opt);
+  });
+
+  // Feedback
+  const fb = document.getElementById("feedbackContainer");
+  fb.innerHTML = "";
+  if (state.mode === "treino" && userPick !== undefined) {
+    const pickedOrig = order[userPick];
+    const correct = pickedOrig === q.correct;
+    const correctDisplayIdx = order.indexOf(q.correct);
+    const div = document.createElement("div");
+    div.className = "feedback " + (correct ? "correct" : "wrong");
+    div.innerHTML = `<strong>${correct ? "✓ Correto" : "✗ Errado — resposta: " + letters[correctDisplayIdx]}</strong><br>${escapeHtml(q.exp)}`;
+    fb.appendChild(div);
+  }
+
+  // Nav buttons
+  document.getElementById("prevBtn").disabled = (i === 0);
+  document.getElementById("nextBtn").textContent = (i === total - 1) ? "Finalizar →" : "Próxima →";
+}
+
+function selectOption(displayIdx) {
+  const i = state.current;
+  if (state.mode === "treino" && state.answers[i] !== undefined) return; // lock after answer in treino
+  state.answers[i] = displayIdx;
+  renderQuestion();
+}
+
+function nextQuestion() {
+  if (state.current === state.questions.length - 1) { finishQuiz(); return; }
+  state.current++;
+  renderQuestion();
+}
+function prevQuestion() {
+  if (state.current === 0) return;
+  state.current--;
+  renderQuestion();
+}
+
+// ============================================================
+// FINISH + RESULTS
+// ============================================================
+function finishQuiz() {
+  if (state.timerInterval) { clearInterval(state.timerInterval); state.timerInterval = null; }
+
+  let correct = 0;
+  const byTopic = {};
+  state.questions.forEach((q, i) => {
+    const pick = state.answers[i];
+    const isCorrect = pick !== undefined && state.optionMap[i][pick] === q.correct;
+    if (!byTopic[q.topic]) byTopic[q.topic] = {ok:0, total:0};
+    byTopic[q.topic].total++;
+    if (isCorrect) { correct++; byTopic[q.topic].ok++; }
+  });
+
+  const total = state.questions.length;
+  const pct = total === 0 ? 0 : Math.round((correct/total)*100);
+  document.getElementById("scoreBig").textContent = `${correct}/${total}`;
+  document.getElementById("scoreDetail").textContent = `${pct}% de acerto • Tempo: ${formatTime(Date.now() - state.startTime)}`;
+
+  const bd = document.getElementById("breakdown");
+  bd.innerHTML = "";
+  Object.keys(byTopic).sort().forEach(tp => {
+    const {ok, total} = byTopic[tp];
+    const p = Math.round((ok/total)*100);
+    const row = document.createElement("div");
+    row.className = "breakdown-row";
+    row.innerHTML = `<span>${tp}</span><span class="breakdown-pct">${ok}/${total} (${p}%)</span>`;
+    bd.appendChild(row);
+  });
+
+  // Review errors
+  const rl = document.getElementById("reviewList");
+  const noErr = document.getElementById("noErrors");
+  rl.innerHTML = "";
+  let errCount = 0;
+  state.questions.forEach((q, i) => {
+    const pick = state.answers[i];
+    const order = state.optionMap[i];
+    const pickedOrig = pick !== undefined ? order[pick] : null;
+    const isCorrect = pickedOrig === q.correct;
+    if (!isCorrect) {
+      errCount++;
+      const letters = ["A","B","C","D"];
+      const correctDisplay = order.indexOf(q.correct);
+      const item = document.createElement("div");
+      item.className = "review-item";
+      let codeHtml = q.code ? `<pre>${escapeHtml(q.code)}</pre>` : "";
+      let qHtml = "";
+      if (q.q) qHtml += escapeHtml(q.q);
+      if (q.question) qHtml += "<br>" + escapeHtml(q.question);
+      const userAns = pick !== undefined ? `${letters[pick]}: ${escapeHtml(q.opts[order[pick]])}` : "(não respondida)";
+      const correctAns = `${letters[correctDisplay]}: ${escapeHtml(q.opts[q.correct])}`;
+      item.innerHTML = `
+        <div class="q-num">Q${q.id} • ${q.topic}</div>
+        <div class="q-text">${qHtml}</div>
+        ${codeHtml}
+        <div class="answers">
+          <div><strong>Sua resposta:</strong> ${userAns}</div>
+          <div><strong>Correta:</strong> ${correctAns}</div>
+          <div style="margin-top:6px"><strong>Por quê:</strong> ${escapeHtml(q.exp)}</div>
+        </div>`;
+      rl.appendChild(item);
+    }
+  });
+  if (errCount === 0) {
+    noErr.classList.remove("hidden");
+  } else {
+    noErr.classList.add("hidden");
+  }
+
+  document.getElementById("quiz").classList.add("hidden");
+  document.getElementById("results").classList.remove("hidden");
+  window.scrollTo(0,0);
+}
+
+function formatTime(ms) {
+  const sec = Math.floor(ms/1000);
+  const m = Math.floor(sec/60);
+  const s = sec % 60;
+  return `${m}min ${String(s).padStart(2,"0")}s`;
+}
+
+function restart() {
+  document.getElementById("results").classList.add("hidden");
+  document.getElementById("setup").classList.remove("hidden");
+  state = { mode:"treino", questions:[], optionMap:{}, answers:{}, current:0, startTime:null, timerLimit:null, timerInterval:null };
+  window.scrollTo(0,0);
+}
+
+// Keyboard shortcuts
+document.addEventListener("keydown", e => {
+  if (document.getElementById("quiz").classList.contains("hidden")) return;
+  if (e.key === "ArrowRight") nextQuestion();
+  else if (e.key === "ArrowLeft") prevQuestion();
+  else if (["1","2","3","4","a","b","c","d","A","B","C","D"].includes(e.key)) {
+    const map = {"1":0,"2":1,"3":2,"4":3,"a":0,"b":1,"c":2,"d":3,"A":0,"B":1,"C":2,"D":3};
+    selectOption(map[e.key]);
+  }
+});
+</script>
+</body>
+</html>
