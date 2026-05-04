@@ -646,6 +646,19 @@ button:focus-visible, input:focus-visible, label:focus-visible {
 .feedback.correct .verdict { color: var(--accent); }
 .feedback.wrong .verdict { color: var(--error); }
 .feedback .body { color: var(--fg); }
+.feedback .body code,
+.review-item .why code,
+.review-item .answers code {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  background: var(--bg-pre);
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: var(--fg);
+  border: 1px solid var(--border-subtle);
+}
+.feedback .body strong,
+.review-item .why strong { color: var(--fg); font-weight: 700; }
 
 .quiz-nav {
   display: flex;
@@ -1155,16 +1168,16 @@ const QUESTIONS = [
   {id:"6.20", quiz:6, topic:"listas", q:"Qual é o resultado de 'Hulk' in ['Batman', 'Hulk', 'Thor', 'Aquaman']?", opts:["False","1","True","Erro"], correct:2, exp:"Operador in retorna bool. 'Hulk' está na lista → True."},
 
   // ============ QUIZ 7 ============
-  {id:"7.1", quiz:7, topic:"funcoes", q:"Em uma função que testa se um número é primo e deve retornar True ou False, qual prática é mais adequada?", opts:["Criar obrigatoriamente uma lista para armazenar todos os números primos possíveis","Usar return True ou return False, para que o programa chamador possa usar o resultado","Usar apenas print(\"é primo\") ou print(\"não é primo\"), sem return","Retornar sempre uma string, porque funções não podem retornar booleanos"], correct:1, exp:"Função utilitária deve RETORNAR valor pra que quem chamou use. print só mostra na tela, não dá pra capturar."},
-  {id:"7.2", quiz:7, topic:"funcoes", q:"Qual é a principal vantagem de criar uma função em Python quando uma mesma lógica será usada várias vezes?", opts:["Eliminar a necessidade de testar o código","Evitar repetição de código e permitir reaproveitar a mesma lógica com diferentes entradas","Fazer o Python executar sempre mais rápido, independentemente do código","Impedir o uso de listas e variáveis dentro do programa"], correct:1, exp:"DRY: Don't Repeat Yourself. Função encapsula lógica e aceita parâmetros diferentes."},
-  {id:"7.3", quiz:7, topic:"funcoes", q:"qual afirmação é correta sobre m?", code:"def g(x, y):\n    m = (x + y)/2\n    return m", opts:["m é uma variável local criada dentro da função e usada para calcular o valor retornado","m é automaticamente impressa sempre que a função é chamada","m precisa existir antes da função ser definida","m é obrigatoriamente um parâmetro de entrada da função"], correct:0, exp:"m é local: existe só dentro de g, some quando a função termina. Parâmetros são x e y."},
-  {id:"7.4", quiz:7, topic:"funcoes", q:"Considere a função g(x,y) = (x+y)/2. Qual é o resultado de g(-10, 5)?", opts:["None","-2.5","-5","2.5"], correct:1, exp:"(-10 + 5)/2 = -5/2 = -2.5."},
-  {id:"7.5", quiz:7, topic:"funcoes", q:"Considere f(x) = x**2. Depois de y = f(-4), qual é o valor de y?", opts:["-8","-16","16","None"], correct:2, exp:"(-4)**2 = 16. Negativo ao quadrado dá positivo."},
-  {id:"7.6", quiz:7, topic:"funcoes", q:"divisao(a,b) deve retornar 999999 se b==0, senão a/b. Qual está correto?", opts:["def divisao(a, b): if a == 0: return 999999   return a/b","def divisao(a, b): if b == 0: return 999999   else: return a/b","def divisao(a, b): if b == 0: print(999999)   else: print(a/b)","def divisao(a, b): return a/b"], correct:1, exp:"Tem que checar b==0 (não a==0) e RETORNAR (não print). Opção 4 quebra com b=0."},
-  {id:"7.7", quiz:7, topic:"funcoes", q:"qual é o papel de nome?", code:"def greet(nome):\n    print(\"hello,\", nome)", opts:["É o nome da função que será chamada pelo programa","É obrigatoriamente uma variável global já existente antes da função","É um parâmetro, isto é, um valor recebido pela função quando ela é chamada","É o valor que a função sempre retorna ao final da execução"], correct:2, exp:"nome é parâmetro: recebe valor na chamada (greet('Arthur') → nome = 'Arthur')."},
-  {id:"7.8", quiz:7, topic:"funcoes", q:"mean(l) = sum(l)/len(l). Qual é o resultado de mean([-3, 0, 4, 10])?", opts:["2.0","2.75","11","4"], correct:1, exp:"(-3+0+4+10)/4 = 11/4 = 2.75."},
-  {id:"7.9", quiz:7, topic:"funcoes", q:"get_aliquota(pdi): 0.225 até 180 dias, 0.20 de 181 a 360, 0.175 de 361 a 720, 0.15 acima de 720. Resultado de get_aliquota(360)?", opts:["0.15","0.225","0.175","0.20"], correct:3, exp:"360 cai na faixa 181-360 → 0.20. Atenção: o limite superior 360 é INCLUÍDO."},
-  {id:"7.10", quiz:7, topic:"funcoes", q:"Função usa print(x**2) mas SEM return. Se z = essa_funcao(5), o que acontece?", opts:["A função imprime 25, mas z recebe None, pois não houve valor retornado","O Python cria automaticamente um erro, pois toda função precisa ter return","A variável z recebe o valor 25, porque qualquer print também retorna o valor impresso","A variável z recebe a string \"25\""], correct:0, exp:"Função sem return implícito devolve None. print é EFEITO COLATERAL, não retorno. z = None."},
+  {id:"7.1", quiz:7, topic:"funcoes", q:"Em uma função que testa se um número é primo e deve retornar True ou False, qual prática é mais adequada?", opts:["Criar obrigatoriamente uma lista para armazenar todos os números primos possíveis","Usar return True ou return False, para que o programa chamador possa usar o resultado","Usar apenas print(\"é primo\") ou print(\"não é primo\"), sem return","Retornar sempre uma string, porque funções não podem retornar booleanos"], correct:1, exp:"Use `return`, não `print`.\nCom `return`, o valor sai da função e pode ser usado depois: `if eh_primo(7):` ou `x = eh_primo(7)`. Com `print`, o valor só aparece na tela e some, não dá pra capturar."},
+  {id:"7.2", quiz:7, topic:"funcoes", q:"Qual é a principal vantagem de criar uma função em Python quando uma mesma lógica será usada várias vezes?", opts:["Eliminar a necessidade de testar o código","Evitar repetição de código e permitir reaproveitar a mesma lógica com diferentes entradas","Fazer o Python executar sempre mais rápido, independentemente do código","Impedir o uso de listas e variáveis dentro do programa"], correct:1, exp:"Função permite escrever a lógica UMA VEZ e reusar várias vezes com entradas diferentes.\nSem função, você teria que copiar e colar o mesmo código pra cada caso. Qualquer alteração depois vira manutenção pesada (tem que mudar em todos os lugares)."},
+  {id:"7.3", quiz:7, topic:"funcoes", q:"qual afirmação é correta sobre m?", code:"def g(x, y):\n    m = (x + y)/2\n    return m", opts:["m é uma variável local criada dentro da função e usada para calcular o valor retornado","m é automaticamente impressa sempre que a função é chamada","m precisa existir antes da função ser definida","m é obrigatoriamente um parâmetro de entrada da função"], correct:0, exp:"Variável criada dentro de função (`m = ...`) é LOCAL: existe só enquanto a função tá rodando, some quando termina.\nParâmetros são as ENTRADAS (`x`, `y`). `m` não é parâmetro, é uma variável intermediária criada pra calcular o resultado."},
+  {id:"7.4", quiz:7, topic:"funcoes", q:"Considere a função g(x,y) = (x+y)/2. Qual é o resultado de g(-10, 5)?", opts:["None","-2.5","-5","2.5"], correct:1, exp:"Trace: `x = -10`, `y = 5`.\n`(x + y) / 2` = `(-10 + 5) / 2` = `-5 / 2` = `-2.5`.\nLembra: `/` em Python sempre retorna float, mesmo divisão exata."},
+  {id:"7.5", quiz:7, topic:"funcoes", q:"Considere f(x) = x**2. Depois de y = f(-4), qual é o valor de y?", opts:["-8","-16","16","None"], correct:2, exp:"`(-4)**2` = `(-4) * (-4)` = `16`.\nNegativo × negativo = positivo. Por isso negativo ao quadrado sempre dá positivo."},
+  {id:"7.6", quiz:7, topic:"funcoes", q:"divisao(a,b) deve retornar 999999 se b==0, senão a/b. Qual está correto?", opts:["def divisao(a, b): if a == 0: return 999999   return a/b","def divisao(a, b): if b == 0: return 999999   else: return a/b","def divisao(a, b): if b == 0: print(999999)   else: print(a/b)","def divisao(a, b): return a/b"], correct:1, exp:"Quem causa erro de divisão por zero é o DIVISOR (`b`), não o dividendo (`a`). Então tem que testar `b == 0`.\nE precisa ser `return 999999`, não `print`, porque quem chamou a função vai querer capturar o resultado.\nA opção 4 (`return a/b` direto) crasha quando `b` é 0."},
+  {id:"7.7", quiz:7, topic:"funcoes", q:"qual é o papel de nome?", code:"def greet(nome):\n    print(\"hello,\", nome)", opts:["É o nome da função que será chamada pelo programa","É obrigatoriamente uma variável global já existente antes da função","É um parâmetro, isto é, um valor recebido pela função quando ela é chamada","É o valor que a função sempre retorna ao final da execução"], correct:2, exp:"`nome` é um PARÂMETRO: a função recebe esse valor quando alguém a chama.\nEx: `greet('Arthur')` faz `nome = 'Arthur'` dentro da função. `nome` vira variável local com o valor passado."},
+  {id:"7.8", quiz:7, topic:"funcoes", q:"mean(l) = sum(l)/len(l). Qual é o resultado de mean([-3, 0, 4, 10])?", opts:["2.0","2.75","11","4"], correct:1, exp:"Trace passo a passo:\n`sum([-3, 0, 4, 10])` = `11`.\n`len([-3, 0, 4, 10])` = `4`.\n`11 / 4` = `2.75`."},
+  {id:"7.9", quiz:7, topic:"funcoes", q:"get_aliquota(pdi): 0.225 até 180 dias, 0.20 de 181 a 360, 0.175 de 361 a 720, 0.15 acima de 720. Resultado de get_aliquota(360)?", opts:["0.15","0.225","0.175","0.20"], correct:3, exp:"360 cai na faixa 181 a 360, que retorna `0.20`.\nAtenção: o limite SUPERIOR (360) está INCLUÍDO nessa faixa, não passa pra próxima (361 já seria 0.175).\nPegadinha clássica: ler com cuidado se o limite é inclusivo ou exclusivo."},
+  {id:"7.10", quiz:7, topic:"funcoes", q:"Função usa print(x**2) mas SEM return. Se z = essa_funcao(5), o que acontece?", opts:["A função imprime 25, mas z recebe None, pois não houve valor retornado","O Python cria automaticamente um erro, pois toda função precisa ter return","A variável z recebe o valor 25, porque qualquer print também retorna o valor impresso","A variável z recebe a string \"25\""], correct:0, exp:"Função sem `return` devolve `None` automaticamente (é o default do Python).\n`print(25)` mostra 25 na tela, mas isso é EFEITO COLATERAL: `print` não 'devolve' o valor pra quem chamou.\nResultado: `z` recebe `None`, e o 25 aparece uma vez na tela."},
 
   // ============ EXTRAS - TIPOS ============
   {id:"E.T1", quiz:8, topic:"tipos", q:"Qual é o tipo de True em Python?", opts:["int","bool","str","True"], correct:1, exp:"True/False são bool. Pegadinha: bool é subclasse de int, então True equivale a 1 numericamente."},
@@ -1253,16 +1266,16 @@ const QUESTIONS = [
   {id:"E.CD10", quiz:8, topic:"condicionais", q:"Qual é o resultado de not (5 < 3)?", opts:["True","False","Erro","5"], correct:0, exp:"5<3 é False. not False = True."},
 
   // ============ EXTRAS - FUNCOES ============
-  {id:"E.F1", quiz:8, topic:"funcoes", q:"Qual o resultado de f(5)?", code:"def f(x, y=10):\n    return x + y", opts:["5","10","15","Erro"], correct:2, exp:"y=10 é argumento default. f(5) usa x=5, y=10. 5+10=15."},
-  {id:"E.F2", quiz:8, topic:"funcoes", q:"Qual o resultado de f(5, 20)?", code:"def f(x, y=10):\n    return x + y", opts:["15","25","30","Erro"], correct:1, exp:"f(5, 20) sobrescreve o default: x=5, y=20. 5+20=25."},
-  {id:"E.F3", quiz:8, topic:"funcoes", q:"Qual o tipo do retorno de f()?", code:"def f():\n    return 1, 2, 3", opts:["int","list","tuple","Erro"], correct:2, exp:"Vírgulas no return criam tupla. f() retorna (1, 2, 3)."},
-  {id:"E.F4", quiz:8, topic:"funcoes", q:"Qual o resultado de dobro(5)?", code:"def soma(a, b):\n    return a + b\n\ndef dobro(n):\n    return soma(n, n)", opts:["5","10","25","Erro"], correct:1, exp:"dobro(5) chama soma(5,5) = 10. Funções podem chamar outras funções."},
-  {id:"E.F5", quiz:8, topic:"funcoes", q:"Qual a saída?", code:"x = 10\ndef f():\n    x = 20\n    return x\n\nprint(f())\nprint(x)", opts:["20 / 20","10 / 10","20 / 10","Erro"], correct:2, exp:"Atribuição dentro de função cria variável LOCAL. f() retorna 20, mas x global continua 10. Pra alterar global, usa 'global x'."},
-  {id:"E.F6", quiz:8, topic:"funcoes", q:"Após l = [1,2]; adiciona(l, 3), qual o valor de l?", code:"def adiciona(lista, item):\n    lista.append(item)\n    return lista", opts:["[1,2]","[1,2,3]","[3]","None"], correct:1, exp:"Listas são MUTÁVEIS e passadas por referência. Modificar dentro afeta a original. Cuidado com efeitos colaterais."},
-  {id:"E.F7", quiz:8, topic:"funcoes", q:"Qual o resultado de saudacao('Arthur')?", code:"def saudacao(nome):\n    if nome == '':\n        return 'Olá, anônimo'\n    return 'Olá, ' + nome", opts:["'Olá, anônimo'","'Olá, Arthur'","'Arthur'","None"], correct:1, exp:"nome != '', pula o primeiro return. Vai pro return final = 'Olá, Arthur'."},
-  {id:"E.F8", quiz:8, topic:"funcoes", q:"Qual o resultado de fat(4)?", code:"def fat(n):\n    if n <= 1:\n        return 1\n    return n * fat(n-1)", opts:["4","10","24","Erro de recursão"], correct:2, exp:"Recursão: fat(4) = 4*fat(3) = 4*3*fat(2) = 4*3*2*fat(1) = 4*3*2*1 = 24."},
-  {id:"E.F9", quiz:8, topic:"funcoes", q:"Qual o resultado de conta_pares([1, 2, 3, 4, 5, 6])?", code:"def conta_pares(lista):\n    c = 0\n    for n in lista:\n        if n % 2 == 0:\n            c += 1\n    return c", opts:["2","3","6","12"], correct:1, exp:"Pares na lista: 2, 4, 6 = 3."},
-  {id:"E.F10", quiz:8, topic:"funcoes", q:"Qual o valor de resultado?", code:"def f(a, b):\n    return a * b\n\nresultado = f(b=3, a=4)", opts:["7","12","Erro (ordem invertida)","None"], correct:1, exp:"Argumentos nomeados (keyword) podem vir em qualquer ordem: a=4, b=3. 4*3=12."},
+  {id:"E.F1", quiz:8, topic:"funcoes", q:"Qual o resultado de f(5)?", code:"def f(x, y=10):\n    return x + y", opts:["5","10","15","Erro"], correct:2, exp:"`y=10` é argumento DEFAULT: se você não passa `y` na chamada, ele assume 10.\nTrace: `f(5)` → `x=5`, `y=10` (default). `return 5+10` = `15`."},
+  {id:"E.F2", quiz:8, topic:"funcoes", q:"Qual o resultado de f(5, 20)?", code:"def f(x, y=10):\n    return x + y", opts:["15","25","30","Erro"], correct:1, exp:"Quando você passa um valor pra `y` na chamada, o default é IGNORADO.\nTrace: `f(5, 20)` → `x=5`, `y=20`. `return 5+20` = `25`."},
+  {id:"E.F3", quiz:8, topic:"funcoes", q:"Qual o tipo do retorno de f()?", code:"def f():\n    return 1, 2, 3", opts:["int","list","tuple","Erro"], correct:2, exp:"Vírgulas em `return` criam uma TUPLA automaticamente.\n`return 1, 2, 3` é equivalente a `return (1, 2, 3)`. f() retorna `(1, 2, 3)` (tipo `tuple`)."},
+  {id:"E.F4", quiz:8, topic:"funcoes", q:"Qual o resultado de dobro(5)?", code:"def soma(a, b):\n    return a + b\n\ndef dobro(n):\n    return soma(n, n)", opts:["5","10","25","Erro"], correct:1, exp:"Funções podem chamar outras funções dentro do corpo.\nTrace: `dobro(5)` chama `soma(5, 5)` → retorna `5+5` = `10` → `dobro(5)` retorna `10`."},
+  {id:"E.F5", quiz:8, topic:"funcoes", q:"Qual a saída?", code:"x = 10\ndef f():\n    x = 20\n    return x\n\nprint(f())\nprint(x)", opts:["20 / 20","10 / 10","20 / 10","Erro"], correct:2, exp:"Dentro da função, `x = 20` cria uma variável NOVA chamada `x` que vive só ali (variável LOCAL). O `x` de fora não é tocado.\nResultado: `f()` retorna 20 (o local), mas o `x` global continua 10.\nPra alterar a variável global de dentro da função, declara `global x` antes de atribuir."},
+  {id:"E.F6", quiz:8, topic:"funcoes", q:"Após l = [1,2]; adiciona(l, 3), qual o valor de l?", code:"def adiciona(lista, item):\n    lista.append(item)\n    return lista", opts:["[1,2]","[1,2,3]","[3]","None"], correct:1, exp:"Listas são MUTÁVEIS: quando passa pra função, ela recebe a MESMA lista (referência), não uma cópia.\nEntão `lista.append(item)` dentro da função modifica a lista original lá fora.\nResultado: `l` vira `[1, 2, 3]`. Cuidado com efeitos colaterais inesperados."},
+  {id:"E.F7", quiz:8, topic:"funcoes", q:"Qual o resultado de saudacao('Arthur')?", code:"def saudacao(nome):\n    if nome == '':\n        return 'Olá, anônimo'\n    return 'Olá, ' + nome", opts:["'Olá, anônimo'","'Olá, Arthur'","'Arthur'","None"], correct:1, exp:"Trace: `nome = 'Arthur'`.\nO `if nome == ''` é falso (nome NÃO é vazio) → pula o primeiro `return`.\nVai pro return final: `'Olá, ' + 'Arthur'` = `'Olá, Arthur'`."},
+  {id:"E.F8", quiz:8, topic:"funcoes", q:"Qual o resultado de fat(4)?", code:"def fat(n):\n    if n <= 1:\n        return 1\n    return n * fat(n-1)", opts:["4","10","24","Erro de recursão"], correct:2, exp:"Função RECURSIVA: chama ela mesma com argumento menor até bater no caso base (`n <= 1`).\nTrace:\n`fat(4)` = `4 * fat(3)`\n`fat(3)` = `3 * fat(2)`\n`fat(2)` = `2 * fat(1)`\n`fat(1)` = `1` (caso base, retorna direto)\nDesempilhando: `4 * 3 * 2 * 1` = `24`."},
+  {id:"E.F9", quiz:8, topic:"funcoes", q:"Qual o resultado de conta_pares([1, 2, 3, 4, 5, 6])?", code:"def conta_pares(lista):\n    c = 0\n    for n in lista:\n        if n % 2 == 0:\n            c += 1\n    return c", opts:["2","3","6","12"], correct:1, exp:"Função percorre a lista contando os pares (`n % 2 == 0`).\nNa lista `[1, 2, 3, 4, 5, 6]`, os pares são 2, 4 e 6. Resultado: `3` pares."},
+  {id:"E.F10", quiz:8, topic:"funcoes", q:"Qual o valor de resultado?", code:"def f(a, b):\n    return a * b\n\nresultado = f(b=3, a=4)", opts:["7","12","Erro (ordem invertida)","None"], correct:1, exp:"Argumentos NOMEADOS (`a=4`, `b=3`) podem vir em qualquer ordem na chamada — Python casa pelo NOME, não pela posição.\nTrace: `f(b=3, a=4)` → `a=4`, `b=3`. `return 4*3` = `12`."},
 
   // ============ EXTRAS - COMPARACOES ============
   {id:"E.CO1", quiz:8, topic:"comparacoes", q:"Qual é o resultado de 5 == 5.0?", opts:["True","False","Erro","None"], correct:0, exp:"Python compara VALOR, não tipo. int 5 == float 5.0 → True."},
@@ -1331,6 +1344,18 @@ function highlightPython(code) {
     if (bi) return '<span class="t-bi">' + bi + '</span>';
     return m;
   });
+}
+
+// Format explanation text: support \n line breaks, `code` markers, **bold**
+function formatExp(s) {
+  let h = s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  // backtick code: `text` -> <code>text</code>
+  h = h.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+  // bold: **text** -> <strong>text</strong>
+  h = h.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+  // newline -> <br>
+  h = h.replace(/\n/g, '<br>');
+  return h;
 }
 function fmtTime(ms) {
   const sec = Math.floor(ms / 1000);
@@ -1537,7 +1562,7 @@ function renderQuestion() {
     const fbDiv = document.createElement("div");
     fbDiv.className = "feedback " + (correct ? "correct" : "wrong");
     const verdict = correct ? "Correto" : "Errado · resposta " + letters[correctDisplayIdx];
-    fbDiv.innerHTML = '<div class="verdict">' + verdict + '</div><div class="body">' + escapeHtml(q.exp) + '</div>';
+    fbDiv.innerHTML = '<div class="verdict">' + verdict + '</div><div class="body">' + formatExp(q.exp) + '</div>';
     fb.appendChild(fbDiv);
   }
 
@@ -1644,7 +1669,7 @@ function finishQuiz() {
           '<div><span class="label">Sua</span><code>' + userAns + '</code></div>' +
           '<div><span class="label">Correta</span><code>' + correctAns + '</code></div>' +
         '</div>' +
-        '<div class="why"><span class="label">Por quê</span>' + escapeHtml(q.exp) + '</div>';
+        '<div class="why"><span class="label">Por quê</span>' + formatExp(q.exp) + '</div>';
       rl.appendChild(item);
     }
   });
